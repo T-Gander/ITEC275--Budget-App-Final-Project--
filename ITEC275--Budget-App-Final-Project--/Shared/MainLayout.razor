@@ -1,0 +1,51 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject SignInManager<IdentityUser> SignInManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc
+
+<PageTitle>Budgeting App</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <article class="content px-4">
+            <AuthorizeView>
+                <Authorized>
+                    @Body
+                    
+                    
+                </Authorized>
+                <NotAuthorized>
+                    <h1 class="text-center">Please Login or Register below:</h1>
+                    <div class="container" style="margin-top: 240px">
+                        <div class="row justify-content-around" style="height: 100px">
+                            <button class="col-md-5 btn btn-primary" @onclick="NavigateToLogin">Login</button>
+                            <button class="btn btn-secondary col-md-5 " @onclick="NavigateToRegister">Register</button>
+                        </div>
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+        </article>
+    </main>
+</div>
+
+@code {
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/Identity/Account/Login", true);
+    }
+
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/Identity/Account/Register", true);
+    }
+
+    
+}

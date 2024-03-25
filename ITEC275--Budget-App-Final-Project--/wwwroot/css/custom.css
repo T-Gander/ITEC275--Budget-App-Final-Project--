@@ -1,0 +1,43 @@
+﻿.btn-primary {
+    background-color: rebeccapurple;
+    border-color: rebeccapurple;
+}
+
+.btn-primary:hover {
+    background-color: black;
+    color: white;
+    border-color: rebeccapurple;
+}
+
+.btn-primary:active {
+    background-color: rebeccapurple;
+    border-color: rebeccapurple;
+}
+
+.btn-primary:focus {
+    background-color: black;
+    outline: 2px solid rebeccapurple !important;
+    box-shadow: none;
+    border-color: black;
+}
+    
+
+.btn-danger {
+    color: white;
+    border-color: orangered;
+    background-color: rebeccapurple;
+}
+
+.btn-danger:hover {
+    background-color: orangered;
+    color: white;
+    border-color: orangered;
+}
+
+.btn-danger:focus {
+    color: white;
+    border-color: black;
+    outline: 2px solid black;
+    box-shadow: none;
+}
+
