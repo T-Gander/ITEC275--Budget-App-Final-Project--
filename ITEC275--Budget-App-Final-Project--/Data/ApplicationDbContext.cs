@@ -40,5 +40,17 @@ namespace ITEC275__Budget_App_Final_Project__.Data
 
             builder.Entity<Transaction>().HasKey(x => x.TransactionId);
         }
+
+        //Needed to insert records into the Connection Table.
+
+        public void EnableIdentityInsertForConnectionTable()
+        {
+            Database.ExecuteSqlRaw("SET IDENTITY_INSERT Connection ON;");
+        }
+
+        public void DisableIdentityInsertForConnectionTable()
+        {
+            Database.ExecuteSqlRaw("SET IDENTITY_INSERT Connection OFF;");
+        }
     }
 }
