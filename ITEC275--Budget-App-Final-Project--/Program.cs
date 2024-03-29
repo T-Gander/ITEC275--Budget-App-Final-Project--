@@ -23,7 +23,7 @@ builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfi
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-//builder.Services.AddScoped<ToDoAppDbContext>();
+builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddScoped<Popups>(sp =>
 {
     var jsRuntime = sp.GetRequiredService<IJSRuntime>();        //Needed help from ChatGPT to figure out how to instatiate this using the JSRuntime.
@@ -57,19 +57,19 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 //Needed to assign/create roles
-//using (var serviceScope = app.Services.CreateScope())
-//{
-//    var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+using (var serviceScope = app.Services.CreateScope())
+{
+    var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-//    if (!await roleManager.RoleExistsAsync("Admin"))        //Not sure if needed
-//    {
-//        await roleManager.CreateAsync(new IdentityRole("Admin"));
-//    }
+    if (!await roleManager.RoleExistsAsync("Admin"))        //Not sure if needed
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
 
-//    if (!await roleManager.RoleExistsAsync("User"))
-//    {
-//        await roleManager.CreateAsync(new IdentityRole("User"));
-//    }
-//}
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+}
 
 app.Run();
