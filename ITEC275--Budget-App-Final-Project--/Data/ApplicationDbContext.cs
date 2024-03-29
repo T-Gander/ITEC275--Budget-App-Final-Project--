@@ -19,9 +19,23 @@ namespace ITEC275__Budget_App_Final_Project__.Data
 
         public DbSet<Transaction> Transactions { get; set; }
 
+        private IConfigurationRoot _configuration = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build();
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+        }
+
+        public ApplicationDbContext()
+        {
+
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(_configuration["ConnectionStrings:DefaultConnection"]);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
