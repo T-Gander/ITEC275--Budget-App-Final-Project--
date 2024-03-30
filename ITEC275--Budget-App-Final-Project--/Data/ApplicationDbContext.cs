@@ -13,8 +13,6 @@ namespace ITEC275__Budget_App_Final_Project__.Data
 
         public DbSet<Category> Categories { get; set; }
 
-        public DbSet<Connection> Connections { get; set; }
-
         public DbSet<Section> Sections { get; set; }
 
         public DbSet<Transaction> Transactions { get; set; }
@@ -36,23 +34,6 @@ namespace ITEC275__Budget_App_Final_Project__.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(_configuration["ConnectionStrings:DefaultConnection"]);
-        }
-
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-
-            builder.Entity<Account>().HasKey(x => x.AccountId);
-
-            builder.Entity<Budget>().HasKey(x => x.BudgetId);
-
-            builder.Entity<Category>().HasKey(x => x.CategoryId);
-
-            builder.Entity<Connection>().HasKey(x => x.TransactionId);
-
-            builder.Entity<Section>().HasKey(x => x.SectionId);
-
-            builder.Entity<Transaction>().HasKey(x => x.TransactionId);
         }
 
         //Needed to insert records into the Connection Table.

@@ -1,0 +1,32 @@
+﻿@using BlazorBootstrap
+
+@inject NavigationManager NavigationManager
+
+<div id="newSection" class="row justify-content-around">
+    <label class="col-md-3 align-content-center">Category Name:</label>
+    <input @bind-value=_NewCategory.CategoryName class="col-md-5" />
+    <button class="col-md-2 btn btn-primary" @onclick=AddACategory>Add</button>
+</div>
+
+
+@code {
+    [Parameter]
+    public Collapse CollapseObj { get; set; }
+
+    [Parameter]
+    public Section _Section { get; set; }
+
+    private Category _NewCategory = new();
+
+    private void AddACategory()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            _NewCategory.SectionId = _Section.SectionId;
+            context.Categories.Add(_NewCategory);
+            context.SaveChanges();
+        }
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+}

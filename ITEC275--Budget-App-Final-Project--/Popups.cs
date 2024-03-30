@@ -16,5 +16,10 @@ namespace ITEC275__Budget_App_Final_Project__
             string script = $"alert('{text}');";
             await _jsRuntime.InvokeVoidAsync("eval", script);
         }
+
+        public async Task ModalPopup(string id)
+        {
+            await _jsRuntime.InvokeVoidAsync("$('#{id}').modal('show')");
+        }
     }
 }

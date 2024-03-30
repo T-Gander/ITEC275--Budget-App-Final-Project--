@@ -1,5 +1,109 @@
-﻿<h3>Budgets</h3>
+﻿@page "/Budgets/{_BudgetId:int}"
+
+@inject Popups Popups;
+
+@using BlazorBootstrap
+@using ITEC275__Budget_App_Final_Project__.Data
+@using ITEC275__Budget_App_Final_Project__.Models;
+@using ITEC275__Budget_App_Final_Project__.Components;
+
+<h1>Budget Name: @_Budget.BudgetName</h1>
+<button class="btn btn-primary" @onclick=AddASection>Add a Section</button>
+<div class="row">
+    <Collapse @ref="collapse1">
+        <Card class="col-md-4">
+            <CardBody >
+                <NewSection CollapseObj="collapse1" _BudgetId="_BudgetId"/>
+            </CardBody>
+        </Card>
+    </Collapse>
+</div>
+
+
+<table class="table table-bordered">
+    <tbody>
+        @foreach (var Section in _Sections)
+        {
+            <tr>
+                <td>
+                    <h4>@Section.Key.SectionName</h4>
+                    <button class="btn btn-primary mb-2" @onclick=AddACategory>Add a Category</button>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <Collapse @ref="collapse2">
+                                <Card>
+                                    <CardBody>
+                                        <NewCategory CollapseObj="collapse2" _Section="Section.Key" />
+                                    </CardBody>
+                                </Card>
+                            </Collapse>
+                        </div>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col" class="text-center"><h5>Category Name</h5></th>
+                                <th scope="col" class="text-center"><h5>Budget Assigned</h5></th>
+                                <th scope="col" class="text-center"><h5>Amount Left</h5></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var category in Section.Value)
+                            {
+                                <tr>
+                                    <td>@category.CategoryName</td>
+                                    <td class="text-center">123</td>
+                                    <td class="text-center">10</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
 
 @code {
+    [Parameter]
+    public int _BudgetId { get; set; }
 
+    private Budget _Budget;
+
+    private Dictionary<Section, List<Category>> _Sections = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == _BudgetId);
+
+            List<Section> _BudgetSections = context.Sections.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
+
+            foreach(Section section in _BudgetSections)
+            {
+                List<Category> connectedCategories = context.Categories.Where(x => x.Section == section).ToList();
+
+                _Sections.Add(section, connectedCategories);
+            }
+        }
+    }
+
+    private async void AddACategory()
+    {
+        await collapse2.ToggleAsync();
+    }
+
+    private async void AddASection()
+    {
+        await collapse1.ToggleAsync();
+    }
+
+    Collapse collapse1 = default!;
+
+    Collapse collapse2 = default!;
 }

@@ -24,6 +24,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 builder.Services.AddScoped<ApplicationDbContext>();
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<Popups>(sp =>
 {
     var jsRuntime = sp.GetRequiredService<IJSRuntime>();        //Needed help from ChatGPT to figure out how to instatiate this using the JSRuntime.

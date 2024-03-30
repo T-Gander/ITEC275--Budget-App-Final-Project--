@@ -34,10 +34,15 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("BudgetId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TotalAssets")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("AccountId");
+
+                    b.HasIndex("BudgetId");
 
                     b.ToTable("Accounts");
                 });
@@ -54,13 +59,13 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OwnerId")
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("BudgetId");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Budgets");
                 });
@@ -77,39 +82,14 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CategoryId");
-
-                    b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Connection", b =>
-                {
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BudgetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SectionId")
                         .HasColumnType("int");
 
-                    b.HasKey("TransactionId");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("BudgetId");
-
-                    b.HasIndex("CategoryId");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Connections");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Section", b =>
@@ -120,11 +100,16 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SectionId"));
 
+                    b.Property<int>("BudgetId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SectionName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SectionId");
+
+                    b.HasIndex("BudgetId");
 
                     b.ToTable("Sections");
                 });
@@ -137,6 +122,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
 
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsCredit")
                         .HasColumnType("bit");
 
@@ -147,6 +135,8 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("TransactionId");
+
+                    b.HasIndex("AccountId");
 
                     b.ToTable("Transactions");
                 });
@@ -169,6 +159,14 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -353,18 +351,51 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Account", b =>
+                {
+                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Budget", "Budget")
+                        .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Budget");
+                });
+
             modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Budget", b =>
                 {
                     b.HasOne("ITEC275__Budget_App_Final_Project__.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("OwnerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Connection", b =>
+            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Category", b =>
+                {
+                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Section", "Section")
+                        .WithMany()
+                        .HasForeignKey("SectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Section");
+                });
+
+            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Section", b =>
+                {
+                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Budget", "Budget")
+                        .WithMany()
+                        .HasForeignKey("BudgetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Budget");
+                });
+
+            modelBuilder.Entity("ITEC275__Budget_App_Final_Project__.Models.Transaction", b =>
                 {
                     b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Account", "Account")
                         .WithMany()
@@ -372,39 +403,7 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Budget", "Budget")
-                        .WithMany()
-                        .HasForeignKey("BudgetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Section", "Section")
-                        .WithMany()
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ITEC275__Budget_App_Final_Project__.Models.Transaction", "Transaction")
-                        .WithMany()
-                        .HasForeignKey("TransactionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("Budget");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Section");
-
-                    b.Navigation("Transaction");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

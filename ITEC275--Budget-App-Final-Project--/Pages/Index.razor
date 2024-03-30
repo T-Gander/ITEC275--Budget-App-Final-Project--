@@ -1,21 +1,41 @@
 ﻿@page "/"
 @using System.Security.Claims;
 @using ITEC275__Budget_App_Final_Project__.Data;
+@using ITEC275__Budget_App_Final_Project__.Models
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello @_FirstName, you're logged in!</h1>
 
-@* Show a layout of Tasks that are Unassigned, Not Started, In Progress or Complete *@
+<h3>Choose one of your existing budgets below, or create a new one:</h3>
+
+<button class="btn btn-primary mb-4" @onclick=NewBudget>New Budget</button>
+
+@* List all budgets *@
+@foreach(Budget b in _BudgetList)
+{
+    <div class="row">
+        <div class="col-md-3 align-content-center">
+            <h3><strong>@b.BudgetName</strong></h3>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary" @onclick="() => ViewBudget(b.BudgetId)">View</button>
+        </div>
+    </div>
+}
+
 
 @code {
     private ClaimsPrincipal user;
 
     private string _FirstName;
+
+    private string _UserId;
+
+    private List<Budget> _BudgetList;
 
     protected override async Task OnInitializedAsync()
     {
@@ -24,9 +44,22 @@
 
         using(var context = new ApplicationDbContext())
         {
-            _FirstName = context.Users.FirstOrDefault(x => x.Email == user.Identity.Name).UserName;
+            User loggedInUser = context.Users.FirstOrDefault(x => x.Email == user.Identity.Name);
+            _FirstName = loggedInUser.FirstName;
+            _UserId = loggedInUser.Id;
+
+            _BudgetList = context.Budgets.Where(x => x.UserId == _UserId).ToList();
         }
-        
+    }
+
+    private void NewBudget()
+    {
+        NavigationManager.NavigateTo($"./NewBudget", true);
+    }
+
+    private void ViewBudget(int budgetId)
+    {
+        NavigationManager.NavigateTo($"./Budgets/{budgetId}", true);    
     }
 }
 

@@ -1,0 +1,48 @@
+﻿@page "/NewBudget"
+
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@using System.Security.Claims;
+@using ITEC275__Budget_App_Final_Project__.Data;
+@using ITEC275__Budget_App_Final_Project__.Models;
+
+<h1>New Budget</h1>
+
+<EditForm Model="_NewBudget" OnValidSubmit="CreateNewBudget">
+    <label>Budget Name:</label>
+    <InputText @bind-Value=_NewBudget.BudgetName required></InputText>
+    <ValidationMessage For="() => _NewBudget.BudgetName">This field is required.</ValidationMessage>
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private ClaimsPrincipal user;
+
+    private User _LoggedInUser;
+
+    private Budget _NewBudget = new Budget();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+
+        using (var context = new ApplicationDbContext())
+        {
+            _LoggedInUser = context.Users.FirstOrDefault(x => x.Email == user.Identity.Name);
+            _NewBudget.UserId = _LoggedInUser.Id;
+        }
+    }
+
+    private void CreateNewBudget()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            context.Budgets.Add(_NewBudget);
+            context.SaveChanges();
+        }
+
+        NavigationManager.NavigateTo("./", true);
+    }
+}

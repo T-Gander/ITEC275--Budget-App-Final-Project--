@@ -1,0 +1,32 @@
+﻿@using BlazorBootstrap
+
+@inject NavigationManager NavigationManager
+
+<div id="newSection" class="row justify-content-around">
+    <label class="col-md-3 align-content-center">Section Name:</label>
+    <input @bind-value=_NewSection.SectionName class="col-md-5" />
+    <button class="col-md-2 btn btn-primary" @onclick=AddASection>Add</button>
+</div>
+
+
+@code {
+    [Parameter]
+    public Collapse CollapseObj { get; set; }
+
+    [Parameter]
+    public int _BudgetId { get; set; }
+
+    private Section _NewSection = new();
+
+    private void AddASection()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            _NewSection.BudgetId = _BudgetId;
+            context.Sections.Add(_NewSection);
+            context.SaveChanges();
+        }
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+}
