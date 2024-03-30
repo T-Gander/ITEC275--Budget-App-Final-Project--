@@ -14,14 +14,14 @@
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick=NavigateHome Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="#" @onclick=NavigateHome Match="NavLinkMatch.All">
                         <span class="oi oi-home" aria-hidden="true"></span> Homepage
                     </NavLink>
                 </div>
                 @if (_ShowBudgetControls)
                 {
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="/Accounts" Match="NavLinkMatch.All">
+                        <NavLink class="nav-link" href="#" @onclick=NavigateToAccounts Match="NavLinkMatch.All">
                             <span class="oi oi-calculator" aria-hidden="true"></span> My Accounts
                         </NavLink>
                     </div>
@@ -38,14 +38,13 @@
 
 
 @code {
-    [Parameter]
-    public Type PageType { get; set; }
-
     private bool collapseNavMenu = true;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private bool _ShowBudgetControls = false;
+
+    private int _BudgetId;
 
     protected override void OnInitialized()
     {
@@ -54,6 +53,15 @@
         if(NavigationManager.Uri.Contains("Budget") && !NavigationManager.Uri.Contains("NewBudget"))
         {
             _ShowBudgetControls = true;
+            int indexOfId = NavigationManager.Uri.IndexOf("Budgets/")+8;
+            int indexOfEndId = NavigationManager.Uri.Substring(indexOfId).IndexOf("/");
+
+            string temp = "";
+
+            if (indexOfEndId == -1)
+                _BudgetId = int.Parse(NavigationManager.Uri.Substring(indexOfId));
+            else
+                _BudgetId = int.Parse(NavigationManager.Uri.Substring(indexOfId, indexOfEndId));
         }
     }
 
@@ -70,5 +78,10 @@
     private void NavigateHome()
     {
         NavigationManager.NavigateTo("/", true);
+    }
+
+    private void NavigateToAccounts()
+    {
+        NavigationManager.NavigateTo($"/Budgets/{_BudgetId}/Accounts", true);
     }
 }
