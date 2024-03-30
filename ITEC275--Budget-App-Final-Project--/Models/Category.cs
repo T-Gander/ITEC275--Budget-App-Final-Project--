@@ -10,6 +10,8 @@ namespace ITEC275__Budget_App_Final_Project__.Models
 
         public int SectionId { get; set; }
 
+        public decimal AssignedBudget { get; set; }
+
         public string CategoryName { get; set; }
 
         [ForeignKey("SectionId")]

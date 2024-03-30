@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ITEC275__Budget_App_Final_Project__.Migrations
 {
     /// <inheritdoc />
-    public partial class DatabaseInit : Migration
+    public partial class TablesInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -226,6 +226,7 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     TransactionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountId = table.Column<int>(type: "int", nullable: false),
+                    Payee = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TransactionValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsCredit = table.Column<bool>(type: "bit", nullable: false)
@@ -248,6 +249,7 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     CategoryId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SectionId = table.Column<int>(type: "int", nullable: false),
+                    AssignedBudget = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

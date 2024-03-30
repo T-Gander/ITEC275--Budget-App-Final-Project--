@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITEC275__Budget_App_Final_Project__.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240329224926_DatabaseInit")]
-    partial class DatabaseInit
+    [Migration("20240330184633_TablesInit")]
+    partial class TablesInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,6 +81,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
+                    b.Property<decimal>("AssignedBudget")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("CategoryName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -130,6 +133,10 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     b.Property<bool>("IsCredit")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Payee")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");

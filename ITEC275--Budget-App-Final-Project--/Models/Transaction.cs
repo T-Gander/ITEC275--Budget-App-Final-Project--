@@ -11,6 +11,8 @@ namespace ITEC275__Budget_App_Final_Project__.Models
 
         public int AccountId { get; set; }
 
+        public string Payee { get; set; }
+
         public DateTime TransactionDate { get; set; }
 
         public decimal TransactionValue { get; set; }

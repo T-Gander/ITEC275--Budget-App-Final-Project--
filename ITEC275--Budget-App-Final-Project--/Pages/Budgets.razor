@@ -7,7 +7,9 @@
 @using ITEC275__Budget_App_Final_Project__.Models;
 @using ITEC275__Budget_App_Final_Project__.Components;
 
-<h1>Budget Name: @_Budget.BudgetName</h1>
+<h1>Budget Name: @_Budget.BudgetName.</h1>
+<h2>Total Assets: $@_Accounts.Sum(x => x.TotalAssets)</h2>
+<h2>Unassigned Assets: $@(_Accounts.Sum(x => x.TotalAssets) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)))</h2>
 <button class="btn btn-primary mb-2" @onclick=AddASection>Add a Section</button>
 <div class="row mb-4">
     <Collapse @ref="collapse1">
@@ -25,7 +27,7 @@
         {
             <tr>
                 <th>
-                    <h4>@Section.Key.SectionName</h4>
+                    <h4>@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
                     <button class="btn btn-primary mb-2" @onclick=AddACategory>Add a Category</button>
                     <div class="row">
                         <div class="col-md-4">
@@ -52,8 +54,21 @@
                             {
                                 <tr>
                                     <td class="text-center">@category.CategoryName</td>
-                                    <td class="text-center fw-normal">123</td>
-                                    <td class="text-center fw-normal">10</td>
+                                    <td class="text-center fw-normal">
+                                        <div>
+                                            @*Currently assigned value*@
+                                            <label>Currently Assigned: $@category.AssignedBudget</label>
+                                            <button @onclick="() => AssignBudget(category.CategoryId)" class="btn btn-primary">Assign Budget</button>
+                                            <Collapse @ref="assignBudgetCollapse">
+                                                <Card>
+                                                    <CardBody>
+                                                        <AssignBudget CollapseObj="assignBudgetCollapse"  />
+                                                    </CardBody>
+                                                </Card>
+                                            </Collapse>
+                                        </div>
+                                    </td>
+                                    <td class="text-center fw-normal">@*Calculate how much is left of the budget after looking at transactions*@</td>
                                 </tr>
                             }
                         </tbody>
@@ -71,15 +86,29 @@
     [Parameter]
     public int _BudgetId { get; set; }
 
+    public List<Account> _Accounts;
+
+    private Collapse collapse1 = default!;
+
+    private Collapse collapse2 = default!;
+
+    private Collapse assignBudgetCollapse = default!;
+
     private Budget _Budget;
 
     private Dictionary<Section, List<Category>> _Sections = new();
+
+    private decimal _UnassignedAssets = 0;
 
     protected override async Task OnInitializedAsync()
     {
         using(var context = new ApplicationDbContext())
         {
             _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == _BudgetId);
+
+            _Accounts = context.Accounts.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
+
+            //_UnassignedAssets = (_Accounts.Sum(x => x.TotalAssets) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)));
 
             List<Section> _BudgetSections = context.Sections.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
 
@@ -92,6 +121,11 @@
         }
     }
 
+    private async void AssignBudget(int categoryId)
+    {
+        await assignBudgetCollapse.ToggleAsync();
+    }
+
     private async void AddACategory()
     {
         await collapse2.ToggleAsync();
@@ -102,7 +136,5 @@
         await collapse1.ToggleAsync();
     }
 
-    Collapse collapse1 = default!;
-
-    Collapse collapse2 = default!;
+    
 }

@@ -78,6 +78,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"));
 
+                    b.Property<decimal>("AssignedBudget")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("CategoryName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -127,6 +130,10 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     b.Property<bool>("IsCredit")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Payee")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");

@@ -1,0 +1,51 @@
+﻿@page "/Budget/{budgetId:int}/Accounts/{accountId:int}/Transactions"
+
+<h3>Transactions</h3>
+
+<table class="table">
+    <thead>
+        <tr class="table-dark">
+            <th scope="col" class="text-center"><h5>Transaction Date</h5></th>
+            <th scope="col" class="text-center"><h5>Payee</h5></th>
+            <th scope="col" class="text-center"><h5>Outflow</h5></th>
+            <th scope="col" class="text-center"><h5>Inflow</h5></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in _Transactions)
+        {
+            <tr>
+                <td class="text-center">@transaction.TransactionDate</td>
+                <td class="text-center fw-normal">@transaction.Payee</td>
+                @if (transaction.IsCredit)
+                {
+                    <td class="text-center fw-normal"></td>
+                    <td class="text-center fw-normal text-success">@transaction.TransactionValue</td> @*Make these editable.*@
+                }
+                else
+                {
+                    <td class="text-center fw-normal text-danger">@transaction.TransactionValue</td>
+                    <td class="text-center fw-normal"></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public int budgetId { get; set; }
+
+    [Parameter]
+    public int accountId { get; set; }
+
+    private List<Transaction> _Transactions = new();
+
+    protected override void OnInitialized()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            _Transactions = context.Transactions.Where(x => x.AccountId == accountId).ToList();
+        }
+    }
+}

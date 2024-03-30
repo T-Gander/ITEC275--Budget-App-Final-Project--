@@ -1,7 +1,36 @@
-﻿@page "/Accounts"
+﻿@page "/Budget/{budgetId:int}/Accounts"
 
-<h3>My Accounts</h3>
+@inject NavigationManager NavigationManager
+
+<h3>My Accounts for Budget: @_Budget.BudgetName</h3>
+
+@foreach(var account in _BudgetAccounts)
+{
+    <h5>@account.AccountName</h5>
+    <h5>@account.TotalAssets</h5>
+    <button @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
+}
+
 
 @code {
+    [Parameter]
+    public int budgetId { get; set; }
 
+    private Budget _Budget;
+
+    private List<Account> _BudgetAccounts = new();
+
+    protected override void OnInitialized()
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == budgetId);
+            _BudgetAccounts = context.Accounts.Where(x => x.BudgetId == budgetId).ToList();
+        }
+    }
+
+    private void NavigateToTransactions(int accountId)
+    {
+        NavigationManager.NavigateTo($"./Budget/{budgetId}/Accounts/{accountId}/Transactions");
+    }
 }

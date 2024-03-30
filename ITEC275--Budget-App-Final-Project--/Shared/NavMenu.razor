@@ -51,7 +51,7 @@
     {
         base.OnInitialized();
 
-        if(NavigationManager.Uri.Contains("Budget"))
+        if(NavigationManager.Uri.Contains("Budget") && !NavigationManager.Uri.Contains("NewBudget"))
         {
             _ShowBudgetControls = true;
         }
