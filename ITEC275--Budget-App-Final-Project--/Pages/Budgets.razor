@@ -8,8 +8,8 @@
 @using ITEC275__Budget_App_Final_Project__.Components;
 
 <h1>Budget Name: @_Budget.BudgetName</h1>
-<button class="btn btn-primary" @onclick=AddASection>Add a Section</button>
-<div class="row">
+<button class="btn btn-primary mb-2" @onclick=AddASection>Add a Section</button>
+<div class="row mb-4">
     <Collapse @ref="collapse1">
         <Card class="col-md-4">
             <CardBody >
@@ -19,13 +19,12 @@
     </Collapse>
 </div>
 
-
 <table class="table table-bordered">
     <tbody>
         @foreach (var Section in _Sections)
         {
             <tr>
-                <td>
+                <th>
                     <h4>@Section.Key.SectionName</h4>
                     <button class="btn btn-primary mb-2" @onclick=AddACategory>Add a Category</button>
                     <div class="row">
@@ -40,9 +39,9 @@
                         </div>
                     </div>
 
-                    <table class="table table-bordered">
-                        <thead class="thead-dark">
-                            <tr>
+                    <table class="table">
+                        <thead>
+                            <tr class="table-dark">
                                 <th scope="col" class="text-center"><h5>Category Name</h5></th>
                                 <th scope="col" class="text-center"><h5>Budget Assigned</h5></th>
                                 <th scope="col" class="text-center"><h5>Amount Left</h5></th>
@@ -52,14 +51,14 @@
                             @foreach (var category in Section.Value)
                             {
                                 <tr>
-                                    <td>@category.CategoryName</td>
-                                    <td class="text-center">123</td>
-                                    <td class="text-center">10</td>
+                                    <td class="text-center">@category.CategoryName</td>
+                                    <td class="text-center fw-normal">123</td>
+                                    <td class="text-center fw-normal">10</td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                </td>
+                </th>
             </tr>
         }
     </tbody>
