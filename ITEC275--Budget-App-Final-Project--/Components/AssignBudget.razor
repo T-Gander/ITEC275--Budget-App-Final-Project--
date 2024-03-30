@@ -3,9 +3,8 @@
 @inject NavigationManager NavigationManager
 
 <div id="newAssign" class="row justify-content-around">
-    <label class="col-md-3 align-content-center">Assign Budget:</label>
-    <input @bind-value=_NewBudgetAssign.AssignedBudget class="col-md-5" />
-    <button class="col-md-2 btn btn-primary" @onclick=UpdateAssigned>Add</button>
+    <input @bind-value=_CurrentCategory.AssignedBudget class="col-md-6" />
+    <button class="col-md-4 btn btn-primary" @onclick=UpdateAssigned>Update</button>
 </div>
 
 
@@ -14,21 +13,21 @@
     public Collapse CollapseObj { get; set; }
 
     [Parameter]
-    public Section _Section { get; set; }
+    public Category _CurrentCategory { get; set; }
 
-    private Category _NewBudgetAssign = new();
+    [Parameter]
+    public Section _Section { get; set; }
 
     private async void UpdateAssigned()
     {
         using (var context = new ApplicationDbContext())
         {
-            _NewBudgetAssign.SectionId = _Section.SectionId;
-            context.Categories.FirstOrDefault(x => x.CategoryId == _NewBudgetAssign.CategoryId).AssignedBudget = _NewBudgetAssign.AssignedBudget;
+            context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory.CategoryId).AssignedBudget = _CurrentCategory.AssignedBudget;
             context.SaveChanges();
-            _NewBudgetAssign = new();
         }
 
         await CollapseObj.ToggleAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
 }
