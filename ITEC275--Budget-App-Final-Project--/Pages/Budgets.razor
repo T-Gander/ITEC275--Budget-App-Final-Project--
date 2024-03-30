@@ -2,14 +2,35 @@
 
 @inject Popups Popups;
 
-@using BlazorBootstrap
-@using ITEC275__Budget_App_Final_Project__.Data
-@using ITEC275__Budget_App_Final_Project__.Models;
-@using ITEC275__Budget_App_Final_Project__.Components;
-
 <h1>Budget Name: @_Budget.BudgetName.</h1>
-<h2>Total Assets: $@_Accounts.Sum(x => x.TotalAssets)</h2>
-<h2>Unassigned Assets: $@(_Accounts.Sum(x => x.TotalAssets) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)))</h2>
+<h2>Total Assets: 
+    $@_Transactions.Sum(x => 
+        {
+            if(!x.IsCredit) 
+            {
+                return x.TransactionValue * -1;
+            }
+            else
+            {
+                return x.TransactionValue;
+            }
+        }
+    )</h2>
+
+<h2>Unassigned Assets: 
+    $@(_Transactions.Sum(x =>
+       {
+           if (!x.IsCredit)
+           {
+               return x.TransactionValue * -1;
+           }
+           else
+           {
+               return x.TransactionValue;
+           }
+       }
+    ) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)))</h2>
+
 <button class="btn btn-primary mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
 <div class="row mb-4">
     <Collapse @ref=_AddSectionCollapse >
@@ -93,6 +114,8 @@
 
     //private Collapse collapse1 = default!;
 
+    public List<Transaction> _Transactions;
+
     private Collapse _AddSectionCollapse = default!;
 
     private Budget _Budget;
@@ -108,6 +131,11 @@
             _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == _BudgetId);
 
             _Accounts = context.Accounts.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
+
+            var accountIds = _Accounts.Select(a => a.AccountId).ToList();       //ChatGPT suggested, as EF cannot convert a collection to sql (which is what I was trying to do before with a complex LINQ query)
+            _Transactions = context.Transactions
+                .Where(x => accountIds.Contains(x.AccountId))
+                .ToList();
 
             //_UnassignedAssets = (_Accounts.Sum(x => x.TotalAssets) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)));
 

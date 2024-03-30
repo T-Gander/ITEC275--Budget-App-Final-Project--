@@ -37,9 +37,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     b.Property<int>("BudgetId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TotalAssets")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("AccountId");
 
                     b.HasIndex("BudgetId");

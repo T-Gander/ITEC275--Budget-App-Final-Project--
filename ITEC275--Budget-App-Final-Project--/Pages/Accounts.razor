@@ -4,21 +4,49 @@
 
 <h3>My Accounts for Budget: @_Budget.BudgetName</h3>
 
+<button class="btn btn-primary mb-2" @onclick="async () => await _AddAccountCollapse.ToggleAsync()">Add an Account</button>
+<div class="row mb-6">
+    <Collapse @ref=_AddAccountCollapse>
+        <Card class="col-md-3">
+            <CardBody >
+                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="_BudgetId" />
+            </CardBody>
+        </Card>
+    </Collapse>
+</div>
+
 @foreach(var account in _BudgetAccounts)
 {
     <h5>@account.AccountName</h5>
-    <h5>@account.TotalAssets</h5>
+    <h5>Current Balance: $@_Transactions.Sum(x =>
+       {
+           if (!x.IsCredit)
+           {
+               return x.TransactionValue * -1;
+           }
+           else
+           {
+               return x.TransactionValue;
+           }
+       })</h5>
+    
     <button @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
 }
-
 
 @code {
     [Parameter]
     public int budgetId { get; set; }
 
+    [Parameter]
+    public int _BudgetId { get; set; }
+
+    private Collapse _AddAccountCollapse = default!;
+
     private Budget _Budget;
 
     private List<Account> _BudgetAccounts = new();
+
+    private List<Transaction> _Transactions = new();
 
     protected override void OnInitialized()
     {
@@ -26,6 +54,10 @@
         {
             _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == budgetId);
             _BudgetAccounts = context.Accounts.Where(x => x.BudgetId == budgetId).ToList();
+            //_Transactions = context.Transactions.Where(x => _BudgetAccounts.Any(y => y.AccountId == x.AccountId)).ToList();
+
+            var accountIds = _BudgetAccounts.Select(a => a.AccountId).ToList();       //ChatGPT suggested, as EF cannot convert a collection to sql (which is what I was trying to do before with a complex LINQ query)
+            _Transactions = context.Transactions.Where(x => accountIds.Contains(x.AccountId)).ToList();
         }
     }
 

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITEC275__Budget_App_Final_Project__.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240330184633_TablesInit")]
+    [Migration("20240330220237_TablesInit")]
     partial class TablesInit
     {
         /// <inheritdoc />
@@ -39,9 +39,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
 
                     b.Property<int>("BudgetId")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAssets")
-                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("AccountId");
 

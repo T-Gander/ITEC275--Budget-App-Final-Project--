@@ -185,7 +185,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     AccountId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BudgetId = table.Column<int>(type: "int", nullable: false),
-                    TotalAssets = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     AccountName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>

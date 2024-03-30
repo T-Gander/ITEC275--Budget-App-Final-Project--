@@ -1,0 +1,52 @@
+﻿@using BlazorBootstrap
+
+@inject NavigationManager NavigationManager
+
+<div id="newAccount" class="row justify-content-around">
+    <div class="row mb-2 justify-content-between">
+        <label class="col-md-8">Account Name:</label>
+        <input class="col-md-4" @bind-value=_NewAccount.AccountName/>
+    </div>
+    <div class="row mb-2 justify-content-between">
+        <label class="col-md-8">Starting Assets:</label>
+        <input class="col-md-4" @bind-value=InitialTransaction.TransactionValue/>
+    </div>
+    <div class="row mb-2 justify-content-end">
+        <button class="col-md-4 btn btn-primary" @onclick=AddAccount>Add</button>
+    </div>
+    
+</div>
+
+
+@code {
+    [Parameter]
+    public Collapse CollapseObj { get; set; }
+
+    [Parameter]
+    public int _BudgetId { get; set; }
+
+    public Account _NewAccount = new();
+
+    public Transaction InitialTransaction = new();
+
+    private async void AddAccount()
+    {
+        //Add account.
+        //Add initial transaction containing a credit equal to Starting Assets.
+
+        _NewAccount.BudgetId = _BudgetId;
+        InitialTransaction.Payee = "Starting Balance";
+        InitialTransaction.TransactionDate = DateTime.Now;
+        InitialTransaction.Account = _NewAccount;
+
+        using(var context = new ApplicationDbContext())
+        {
+            context.Transactions.Add(InitialTransaction);
+            context.SaveChanges();
+        }
+
+        await CollapseObj.ToggleAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+}
