@@ -7,9 +7,9 @@
 <button class="btn btn-primary mb-2" @onclick="async () => await _AddAccountCollapse.ToggleAsync()">Add an Account</button>
 <div class="row mb-6">
     <Collapse @ref=_AddAccountCollapse>
-        <Card class="col-md-3">
+        <Card class="col-md-6">
             <CardBody >
-                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="_BudgetId" />
+                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="budgetId" />
             </CardBody>
         </Card>
     </Collapse>
@@ -18,7 +18,7 @@
 @foreach(var account in _BudgetAccounts)
 {
     <h5>@account.AccountName</h5>
-    <h5>Current Balance: $@_Transactions.Sum(x =>
+    <h5>Current Balance: $@_Transactions.Where(x => x.AccountId == account.AccountId).Sum(x =>
        {
            if (!x.IsCredit)
            {
@@ -30,15 +30,12 @@
            }
        })</h5>
     
-    <button @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
+    <button class="btn btn-primary" @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
 }
 
 @code {
     [Parameter]
     public int budgetId { get; set; }
-
-    [Parameter]
-    public int _BudgetId { get; set; }
 
     private Collapse _AddAccountCollapse = default!;
 
@@ -63,6 +60,6 @@
 
     private void NavigateToTransactions(int accountId)
     {
-        NavigationManager.NavigateTo($"./Budget/{budgetId}/Accounts/{accountId}/Transactions");
+        NavigationManager.NavigateTo($"./Budgets/{budgetId}/Accounts/{accountId}/Transactions");
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ITEC275__Budget_App_Final_Project__.Migrations
 {
     /// <inheritdoc />
-    public partial class TablesInit : Migration
+    public partial class TableInit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -225,6 +225,7 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     TransactionId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AccountId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: true),
                     Payee = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TransactionValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),

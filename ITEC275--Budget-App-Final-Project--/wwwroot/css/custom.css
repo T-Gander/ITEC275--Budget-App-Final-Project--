@@ -3,6 +3,12 @@
     border-color: rebeccapurple;
 }
 
+.table-primary {
+    --bs-table-bg: rebeccapurple;
+    border-color: rebeccapurple;
+    --bs-heading-color: white;
+}
+
 .btn-primary:hover {
     background-color: black;
     color: white;

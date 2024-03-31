@@ -17,7 +17,6 @@
     
 </div>
 
-
 @code {
     [Parameter]
     public Collapse CollapseObj { get; set; }
@@ -38,11 +37,12 @@
         InitialTransaction.Payee = "Starting Balance";
         InitialTransaction.TransactionDate = DateTime.Now;
         InitialTransaction.Account = _NewAccount;
+        InitialTransaction.IsCredit = true;
 
         using(var context = new ApplicationDbContext())
         {
             context.Transactions.Add(InitialTransaction);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         await CollapseObj.ToggleAsync();

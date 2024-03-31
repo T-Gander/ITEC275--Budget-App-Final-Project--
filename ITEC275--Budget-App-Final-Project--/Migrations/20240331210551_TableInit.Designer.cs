@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ITEC275__Budget_App_Final_Project__.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240330220237_TablesInit")]
-    partial class TablesInit
+    [Migration("20240331210551_TableInit")]
+    partial class TableInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -126,6 +126,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionId"));
 
                     b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsCredit")

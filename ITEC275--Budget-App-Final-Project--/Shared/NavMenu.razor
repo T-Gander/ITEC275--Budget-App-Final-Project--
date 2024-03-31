@@ -53,6 +53,7 @@
         if(NavigationManager.Uri.Contains("Budget") && !NavigationManager.Uri.Contains("NewBudget"))
         {
             _ShowBudgetControls = true;
+            
             int indexOfId = NavigationManager.Uri.IndexOf("Budgets/")+8;
             int indexOfEndId = NavigationManager.Uri.Substring(indexOfId).IndexOf("/");
 

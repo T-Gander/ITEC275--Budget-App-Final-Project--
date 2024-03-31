@@ -125,6 +125,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsCredit")
                         .HasColumnType("bit");
 

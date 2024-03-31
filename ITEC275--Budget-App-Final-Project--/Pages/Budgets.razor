@@ -34,7 +34,7 @@
 <button class="btn btn-primary mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
 <div class="row mb-4">
     <Collapse @ref=_AddSectionCollapse >
-        <Card class="col-md-4">
+        <Card class="col-md-6">
             <CardBody >
                 <NewSection CollapseObj=_AddSectionCollapse _BudgetId="_BudgetId" />
             </CardBody>
@@ -52,7 +52,7 @@
                     <button class="btn btn-primary mb-2" @onclick="async () => await _SectionCategoryCollapseDictionary[Section.Key].ToggleAsync()">Add a Category</button>
                     <div class="row">
                         <Collapse @ref=_SectionCategoryCollapseDictionary[Section.Key]>
-                            <Card class="col-md-4">
+                            <Card class="col-md-6">
                                 <CardBody>
                                     <NewCategory CollapseObj="_SectionCategoryCollapseDictionary[Section.Key]" _Section="Section.Key" />
                                 </CardBody>
@@ -62,10 +62,10 @@
 
                     <table class="table">
                         <thead>
-                            <tr class="table-dark">
-                                <th scope="col" class="text-center"><h5>Category Name</h5></th>
-                                <th scope="col" class="text-center"><h5>Budget Assigned</h5></th>
-                                <th scope="col" class="text-center"><h5>Amount Left to Transact</h5></th>
+                            <tr class="table-primary align-content-center">
+                                <th scope="col" class="text-center"><h5 style="margin:0;">Category Name</h5></th>
+                                <th scope="col" class="text-center"><h5 style="margin:0;">Budget Assigned</h5></th>
+                                <th scope="col" class="text-center"><h5 style="margin:0;">Amount Left to Transact</h5></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,11 +75,11 @@
                                     <td class="text-center">@category.CategoryName</td>
                                     <td class="text-center fw-normal justify-content-center align-items-center flex-column">
                                         <div class="row justify-content-center">
-                                            <label class="col-md-3 align-self-center">Assigned: $@category.AssignedBudget</label>
-                                            <button class="btn btn-primary col-md-2" @onclick="async () => await _CategoryCollapseDictionary[category].ToggleAsync()">Assign</button>
+                                            <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
+                                            <button class="btn btn-primary col-md-4" @onclick="async () => await _CategoryCollapseDictionary[category].ToggleAsync()">Assign</button>
                                         </div>
                                         <div class="row justify-content-center">
-                                            <Collapse class="col-md-5" @ref="_CategoryCollapseDictionary[category]">
+                                            <Collapse class="col-md-12" @ref="_CategoryCollapseDictionary[category]">
                                                 <Card>
                                                     <CardBody>
                                                         <AssignBudget CollapseObj="_CategoryCollapseDictionary[category]" _Section="Section.Key" _CurrentCategory="category"/>
@@ -88,7 +88,20 @@
                                             </Collapse>
                                         </div>
                                     </td>
-                                    <td class="text-center fw-normal"></td>
+                                    <td class="text-center fw-normal">
+                                        $@(@category.AssignedBudget - _Transactions.Where(x => x.CategoryId == category.CategoryId).Sum(x =>
+                                                                                                                                            {
+                                                                                                                                                if (x.IsCredit)
+                                                                                                                                                {
+                                                                                                                                                    return x.TransactionValue * -1;
+                                                                                                                                                }
+                                                                                                                                                else
+                                                                                                                                                {
+                                                                                                                                                    return x.TransactionValue;
+                                                                                                                                                }
+                                                                                                                                            }))
+                                                                    
+                                    </td>
                                 </tr>
                             }
                         </tbody>
