@@ -1,15 +1,19 @@
 ﻿@inject DataManager DataManager
 
-<table class="table table-bordered">
-    <tbody>
-        @foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!])
-        {
+
+@foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!])
+{
+    <table class="table table-bordered">
+        <tbody>
             <tr>
                 <th>
-                    <h4>@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
-                    <div class="row mb-1 justify-content-between">
-                        <button class="btn btn-primary col-md-1 m-1 ms-3" @onclick="async () => await DataManager.SectionCollapseDictionary![Section.Key].ToggleAsync()">Add</button>
-                        <button class="btn btn-danger col-md-1 m-1 me-3" @onclick="() => DeleteSection(Section.Key)">Delete</button>
+                    <div class="row mb-1 align-content-center justify-content-between">
+                        <h4 class="col-md-6 m-0 align-content-center ms-1">@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
+                        <div class="col-md-6 row justify-content-end">
+                            <button class="btn btn-primary col-md-1 m-1 ms-3" style="width: 100px;" @onclick="async () => await DataManager.SectionCollapseDictionary![Section.Key].ToggleAsync()">Add</button>
+                            <button class="btn btn-danger col-md-1 m-1 me-3" style="width: 100px;" @onclick="() => DeleteSection(Section.Key)">Delete</button>
+                        </div>
+                        
                     </div>
                     <div class="row">
                         <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="() => UpdateState()">
@@ -24,10 +28,11 @@
                     <CategoriesTableData _CategoryList="Section.Value" _Section="Section.Key" />
                 </th>
             </tr>
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
 
+}
+  
 @code {
     private void DeleteSection(Section section)
     {

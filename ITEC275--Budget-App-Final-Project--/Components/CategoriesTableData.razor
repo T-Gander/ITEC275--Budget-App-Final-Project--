@@ -1,6 +1,6 @@
 ﻿@inject DataManager DataManager
 
-<table class="table">
+<table class="table table-borderless mb-0">
     <thead>
         <tr class="table-primary align-content-center">
             <th scope="col" class="text-center"><h5 style="margin:0;">Category Name</h5></th>
@@ -12,7 +12,7 @@
         @foreach (var category in _CategoryList!)
         {
             <tr>
-                <td class="text-center fw-normal">@category.CategoryName</td>
+                <td class="text-center fw-normal align-content-center">@category.CategoryName</td>
                 <td class="text-center fw-normal justify-content-center align-items-center flex-column">
                     <div class="row justify-content-center">
                         <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
@@ -28,7 +28,7 @@
                         </Collapse>
                     </div>
                 </td>
-                <td class="text-center fw-normal">
+                <td class="text-center fw-normal align-content-center">
                     $@DataManager.CalculateCategoryLeftToTransact(DataManager.CurrentBudget!, category)
                 </td>
             </tr>
