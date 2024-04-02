@@ -17,13 +17,13 @@
     <Collapse @ref=_AddSectionCollapse OnHiding="() => UpdateState()">
         <Card class="col-md-7">
             <CardBody>
-                <NewSection CollapseObj=_AddSectionCollapse />
+                <NewSection CollapseObj=_AddSectionCollapse/>
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-<SectionTableData />
+<SectionTableData _AllSections="DataManager.BudgetSectionCategoriesDictionary" />    @* In order to update the state, I needed to pass through the dictionary *@
 
 @code {
     [Parameter]

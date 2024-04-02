@@ -1,7 +1,8 @@
 ﻿@inject DataManager DataManager
 
+<Button @onclick=StateHasChanged>Refresh</Button>
 
-@foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!])
+@foreach (var Section in _AllSections![DataManager.CurrentBudget!])
 {
     <table class="table table-bordered">
         <tbody>
@@ -32,8 +33,13 @@
     </table>
 
 }
+
+
   
 @code {
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Section, List<Category>>>? _AllSections { get; set;}
+
     private void DeleteSection(Section section)
     {
         using (var context = new ApplicationDbContext())

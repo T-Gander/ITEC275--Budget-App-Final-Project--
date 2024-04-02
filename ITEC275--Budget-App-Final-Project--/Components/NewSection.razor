@@ -21,17 +21,15 @@
         {
             _NewSection.BudgetId = DataManager.CurrentBudget!.BudgetId;
             context.Sections.Add(_NewSection);
-            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Add(_NewSection, new());
-
             context.SaveChanges();
 
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Add(_NewSection, new());
             Collapse newCollapse = default!;
-
             DataManager.SectionCollapseDictionary!.Add(_NewSection, newCollapse);
+
+            DataManager.OrderLists();
         }
         _NewSection = new();
-
-        DataManager.OrderLists();
 
         CollapseObj!.ToggleAsync();
     }
