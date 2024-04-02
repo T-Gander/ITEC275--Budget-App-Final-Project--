@@ -49,7 +49,7 @@
         _SectionsDictionary = _SectionsDictionary.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
         foreach (var key in _SectionsDictionary)
         {
-            var orderedCategories = key.Value.OrderBy(x => x.CategoryName);
+            var orderedCategories = key.Value.OrderBy(x => x.CategoryName).ToList();
             key.Value.Clear();
             key.Value.AddRange(orderedCategories);
         }
