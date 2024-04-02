@@ -29,9 +29,9 @@
     
 
 .btn-danger {
-    color: white;
+    color: black;
     border-color: orangered;
-    background-color: rebeccapurple;
+    background-color: lightgray;
 }
 
 .btn-danger:hover {

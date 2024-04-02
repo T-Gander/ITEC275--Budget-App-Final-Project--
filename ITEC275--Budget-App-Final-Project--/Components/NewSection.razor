@@ -16,6 +16,12 @@
     [Parameter]
     public int _BudgetId { get; set; }
 
+    [Parameter]
+    public Dictionary<Section, List<Category>> _SectionsDictionary { get; set; }
+
+    [Parameter]
+    public Dictionary<Section, Collapse> _SectionCategoryCollapseDictionary { get; set; }
+
     private Section _NewSection = new();
 
     private void AddASection()
@@ -24,9 +30,28 @@
         {
             _NewSection.BudgetId = _BudgetId;
             context.Sections.Add(_NewSection);
+            _SectionsDictionary.Add(_NewSection, new());
+
             context.SaveChanges();
+
+            Collapse newCollapse = default!;
+            _SectionCategoryCollapseDictionary.Add(_NewSection, newCollapse);
         }
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+        _NewSection = new();
+
+        OrderLists();
+
+        CollapseObj.ToggleAsync();
     }
 
+    private void OrderLists()
+    {
+        _SectionsDictionary = _SectionsDictionary.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
+        foreach (var key in _SectionsDictionary)
+        {
+            var orderedCategories = key.Value.OrderBy(x => x.CategoryName);
+            key.Value.Clear();
+            key.Value.AddRange(orderedCategories);
+        }
+    }
 }

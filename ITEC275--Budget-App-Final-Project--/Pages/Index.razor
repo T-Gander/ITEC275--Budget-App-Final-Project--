@@ -14,10 +14,10 @@
 @foreach(Budget b in _BudgetList)
 {
     <div class="row">
-        <div class="col-md-3 align-content-center">
+        <div class="col-md-6 align-content-center">
             <h3><strong>@b.BudgetName</strong></h3>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <button class="btn btn-primary" @onclick="() => ViewBudget(b.BudgetId)">View</button>
         </div>
     </div>

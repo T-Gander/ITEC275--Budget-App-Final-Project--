@@ -31,12 +31,13 @@
        }
     ) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)))</h2>
 
-<button class="btn btn-primary mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
+<button class="btn btn-primary col-md-3 mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
+
 <div class="row mb-4">
-    <Collapse @ref=_AddSectionCollapse >
-        <Card class="col-md-6">
-            <CardBody >
-                <NewSection CollapseObj=_AddSectionCollapse _BudgetId="_BudgetId" />
+    <Collapse @ref=_AddSectionCollapse OnHiding="() => UpdateState()">
+        <Card class="col-md-7">
+            <CardBody>
+                <NewSection CollapseObj=_AddSectionCollapse _BudgetId="_BudgetId" _SectionsDictionary="_Sections" _SectionCategoryCollapseDictionary="_SectionCategoryCollapseDictionary" />
             </CardBody>
         </Card>
     </Collapse>
@@ -49,12 +50,15 @@
             <tr>
                 <th>
                     <h4>@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
-                    <button class="btn btn-primary mb-2" @onclick="async () => await _SectionCategoryCollapseDictionary[Section.Key].ToggleAsync()">Add a Category</button>
+                    <div class="row mb-1 justify-content-between">
+                        <button class="btn btn-primary col-md-1 m-1 ms-3" @onclick="async () => await _SectionCategoryCollapseDictionary[Section.Key].ToggleAsync()">Add</button>
+                        <button class="btn btn-danger col-md-1 m-1 me-3" @onclick="() => DeleteSection(Section.Key)">Delete</button>
+                    </div>
                     <div class="row">
-                        <Collapse @ref=_SectionCategoryCollapseDictionary[Section.Key]>
-                            <Card class="col-md-6">
+                        <Collapse @ref=_SectionCategoryCollapseDictionary[Section.Key] OnHiding="() => UpdateState()">
+                            <Card class="col-md-9">
                                 <CardBody>
-                                    <NewCategory CollapseObj="_SectionCategoryCollapseDictionary[Section.Key]" _Section="Section.Key" />
+                                    <NewCategory CollapseObj="_SectionCategoryCollapseDictionary[Section.Key]" _Section="Section.Key" _CategoryCollapse="_CategoryCollapseDictionary" _SectionCategoryList="_Sections" />
                                 </CardBody>
                             </Card>
                         </Collapse>
@@ -72,14 +76,14 @@
                             @foreach (var category in Section.Value)
                             {
                                 <tr>
-                                    <td class="text-center">@category.CategoryName</td>
+                                    <td class="text-center fw-normal">@category.CategoryName</td>
                                     <td class="text-center fw-normal justify-content-center align-items-center flex-column">
                                         <div class="row justify-content-center">
                                             <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
                                             <button class="btn btn-primary col-md-4" @onclick="async () => await _CategoryCollapseDictionary[category].ToggleAsync()">Assign</button>
                                         </div>
                                         <div class="row justify-content-center">
-                                            <Collapse class="col-md-12" @ref="_CategoryCollapseDictionary[category]">
+                                            <Collapse class="col-md-12" @ref="_CategoryCollapseDictionary[category]" OnHiding="() => UpdateState()">
                                                 <Card>
                                                     <CardBody>
                                                         <AssignBudget CollapseObj="_CategoryCollapseDictionary[category]" _Section="Section.Key" _CurrentCategory="category"/>
@@ -135,8 +139,6 @@
 
     private Dictionary<Section, List<Category>> _Sections = new();
 
-    private decimal _UnassignedAssets = 0;
-
     protected override async Task OnInitializedAsync()
     {
         using(var context = new ApplicationDbContext())
@@ -149,8 +151,6 @@
             _Transactions = context.Transactions
                 .Where(x => accountIds.Contains(x.AccountId))
                 .ToList();
-
-            //_UnassignedAssets = (_Accounts.Sum(x => x.TotalAssets) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)));
 
             List<Section> _BudgetSections = context.Sections.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
 
@@ -172,6 +172,45 @@
                     _CategoryCollapseDictionary.Add(category, newCollapse2);
                 }
             }
+
+            OrderLists();
         }
+    }
+
+    private void DeleteSection(Section section)
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            foreach (Category cat in context.Categories.Where(x => x.SectionId == section.SectionId))
+            {
+                _CategoryCollapseDictionary.Remove(cat);
+            }
+
+            context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
+
+            _Sections.Remove(section);
+            _SectionCategoryCollapseDictionary.Remove(section);
+            context.Sections.Remove(section);
+
+            context.SaveChanges();
+        }
+        StateHasChanged();
+    }
+
+    private void OrderLists()
+    {
+        _Sections = _Sections.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
+        foreach (var key in _Sections)
+        {
+            var orderedCategories = key.Value.OrderBy(x => x.CategoryName);
+            key.Value.Clear();
+            key.Value.AddRange(orderedCategories);
+        }
+    }
+
+    private void UpdateState()
+    {
+        OrderLists();
+        StateHasChanged();
     }
 }
