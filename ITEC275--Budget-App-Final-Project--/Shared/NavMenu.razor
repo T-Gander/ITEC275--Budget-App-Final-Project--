@@ -14,20 +14,20 @@
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="javascript:void(0)" @onclick="async () => await NavigateHome()" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="javascript:void(0)" @onclick="() => NavigateHome()" Match="NavLinkMatch.All">
                         <span class="oi oi-home" aria-hidden="true"></span> Homepage
                     </NavLink>
                 </div>
                 @if (_ShowBudgetControls)
                 {
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="javascript:void(0)" @onclick="async () => await NavigateToAccounts()" Match="NavLinkMatch.All">
+                        <NavLink class="nav-link" href="javascript:void(0)" @onclick="() => NavigateToAccounts()" Match="NavLinkMatch.All">
                             <span class="oi oi-calculator" aria-hidden="true"></span> My Accounts
                         </NavLink>
                     </div>
                 }
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="javascript:void(0)" @onclick="async () => await LogOut()" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="javascript:void(0)" @onclick="() => LogOut()" Match="NavLinkMatch.All">
                         <span aria-hidden="true"></span> Log Out
                     </NavLink>
                 </div>
@@ -57,8 +57,6 @@
             int indexOfId = NavigationManager.Uri.IndexOf("Budgets/")+8;
             int indexOfEndId = NavigationManager.Uri.Substring(indexOfId).IndexOf("/");
 
-            string temp = "";
-
             if (indexOfEndId == -1)
                 _BudgetId = int.Parse(NavigationManager.Uri.Substring(indexOfId));
             else
@@ -71,17 +69,17 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    private async Task LogOut()
+    private void LogOut()
     {
         NavigationManager.NavigateTo("/Logout", true);
     }
 
-    private async Task NavigateHome()
+    private void NavigateHome()
     {
         NavigationManager.NavigateTo("/", true);
     }
 
-    private async Task NavigateToAccounts()
+    private void NavigateToAccounts()
     {
         NavigationManager.NavigateTo($"/Budgets/{_BudgetId}/Accounts", true);
     }

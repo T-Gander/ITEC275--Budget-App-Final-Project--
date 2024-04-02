@@ -13,7 +13,7 @@ namespace ITEC275__Budget_App_Final_Project__.Models
 
         public int? CategoryId { get; set; }
 
-        public string Payee { get; set; }
+        public string? Payee { get; set; }
 
         public DateTime TransactionDate { get; set; }
 
@@ -22,6 +22,6 @@ namespace ITEC275__Budget_App_Final_Project__.Models
         public bool IsCredit { get; set; }
 
         [ForeignKey(nameof(AccountId))]
-        public Account Account { get; set; }
+        public Account? Account { get; set; }
     }
 }

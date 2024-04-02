@@ -1,0 +1,61 @@
+﻿@inject DataManager DataManager
+
+<table class="table table-bordered">
+    <tbody>
+        @foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![_Budget])
+        {
+            <tr>
+                <th>
+                    <h4>@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
+                    <div class="row mb-1 justify-content-between">
+                        <button class="btn btn-primary col-md-1 m-1 ms-3" @onclick="async () => await DataManager.SectionCollapseDictionary![Section.Key].ToggleAsync()">Add</button>
+                        <button class="btn btn-danger col-md-1 m-1 me-3" @onclick="() => DeleteSection(Section.Key)">Delete</button>
+                    </div>
+                    <div class="row">
+                        <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="() => UpdateState()">
+                            <Card class="col-md-9">
+                                <CardBody>
+                                    <NewCategory CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" _Budget="_Budget" />
+                                </CardBody>
+                            </Card>
+                        </Collapse>
+                    </div>
+
+                    <CategoriesTableData _Budget="_Budget" _CategoryList="Section.Value" _Section="Section.Key" />
+                </th>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public Budget? _Budget { get; set; }
+
+
+    private void DeleteSection(Section section)
+    {
+        using (var context = new ApplicationDbContext())
+        {
+            foreach (Category cat in context.Categories.Where(x => x.SectionId == section.SectionId))
+            {
+                DataManager.CategoryCollapseDictionary!.Remove(cat);
+            }
+
+            context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
+
+            DataManager.BudgetSectionCategoriesDictionary![_Budget!].Remove(section);
+            DataManager.SectionCollapseDictionary!.Remove(section);
+            context.Sections.Remove(section);
+
+            context.SaveChanges();
+        }
+        StateHasChanged();
+    }
+
+    private void UpdateState()
+    {
+        DataManager.OrderLists();
+        StateHasChanged();
+    }
+}

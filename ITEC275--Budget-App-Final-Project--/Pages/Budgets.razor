@@ -1,33 +1,15 @@
 ﻿@page "/Budgets/{_BudgetId:int}"
 
-<h1>Budget Name: @_Budget.BudgetName.</h1>
-<h2>Total Assets: 
-    $@_Transactions.Sum(x => 
-        {
-            if(!x.IsCredit) 
-            {
-                return x.TransactionValue * -1;
-            }
-            else
-            {
-                return x.TransactionValue;
-            }
-        }
-    )</h2>
+@inject DataManager DataManager
 
-<h2>Unassigned Assets: 
-    $@(_Transactions.Sum(x =>
-       {
-           if (!x.IsCredit)
-           {
-               return x.TransactionValue * -1;
-           }
-           else
-           {
-               return x.TransactionValue;
-           }
-       }
-    ) - _Sections.Sum(x => x.Value.Sum(y => y.AssignedBudget)))</h2>
+<h1>Budget Name: @_Budget!.BudgetName.</h1>
+<h2>
+    Total Assets: $@DataManager.CalculateAssets(_Budget)
+</h2>
+
+<h2>
+    Unassigned Assets: $@(DataManager.CalculateAssets(_Budget) - DataManager.CalculateAllAssignedAssets(_Budget))
+</h2>
 
 <button class="btn btn-primary col-md-3 mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
 
@@ -35,180 +17,34 @@
     <Collapse @ref=_AddSectionCollapse OnHiding="() => UpdateState()">
         <Card class="col-md-7">
             <CardBody>
-                <NewSection CollapseObj=_AddSectionCollapse _BudgetId="_BudgetId" _SectionsDictionary="_Sections" _SectionCategoryCollapseDictionary="_SectionCategoryCollapseDictionary" />
+                <NewSection CollapseObj=_AddSectionCollapse _Budget="_Budget"/>
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-<table class="table table-bordered">
-    <tbody>
-        @foreach (var Section in _Sections)
-        {
-            <tr>
-                <th>
-                    <h4>@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
-                    <div class="row mb-1 justify-content-between">
-                        <button class="btn btn-primary col-md-1 m-1 ms-3" @onclick="async () => await _SectionCategoryCollapseDictionary[Section.Key].ToggleAsync()">Add</button>
-                        <button class="btn btn-danger col-md-1 m-1 me-3" @onclick="() => DeleteSection(Section.Key)">Delete</button>
-                    </div>
-                    <div class="row">
-                        <Collapse @ref=_SectionCategoryCollapseDictionary[Section.Key] OnHiding="() => UpdateState()">
-                            <Card class="col-md-9">
-                                <CardBody>
-                                    <NewCategory CollapseObj="_SectionCategoryCollapseDictionary[Section.Key]" _Section="Section.Key" _CategoryCollapse="_CategoryCollapseDictionary" _SectionCategoryList="_Sections" />
-                                </CardBody>
-                            </Card>
-                        </Collapse>
-                    </div>
-
-                    <table class="table">
-                        <thead>
-                            <tr class="table-primary align-content-center">
-                                <th scope="col" class="text-center"><h5 style="margin:0;">Category Name</h5></th>
-                                <th scope="col" class="text-center"><h5 style="margin:0;">Budget Assigned</h5></th>
-                                <th scope="col" class="text-center"><h5 style="margin:0;">Amount Left to Transact</h5></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var category in Section.Value)
-                            {
-                                <tr>
-                                    <td class="text-center fw-normal">@category.CategoryName</td>
-                                    <td class="text-center fw-normal justify-content-center align-items-center flex-column">
-                                        <div class="row justify-content-center">
-                                            <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
-                                            <button class="btn btn-primary col-md-4" @onclick="async () => await _CategoryCollapseDictionary[category].ToggleAsync()">Assign</button>
-                                        </div>
-                                        <div class="row justify-content-center">
-                                            <Collapse class="col-md-12" @ref="_CategoryCollapseDictionary[category]" OnHiding="() => UpdateState()">
-                                                <Card>
-                                                    <CardBody>
-                                                        <AssignBudget CollapseObj="_CategoryCollapseDictionary[category]" _Section="Section.Key" _CurrentCategory="category"/>
-                                                    </CardBody>
-                                                </Card>
-                                            </Collapse>
-                                        </div>
-                                    </td>
-                                    <td class="text-center fw-normal">
-                                        $@(@category.AssignedBudget - _Transactions.Where(x => x.CategoryId == category.CategoryId).Sum(x =>
-                                                                                                                                            {
-                                                                                                                                                if (x.IsCredit)
-                                                                                                                                                {
-                                                                                                                                                    return x.TransactionValue * -1;
-                                                                                                                                                }
-                                                                                                                                                else
-                                                                                                                                                {
-                                                                                                                                                    return x.TransactionValue;
-                                                                                                                                                }
-                                                                                                                                            }))
-                                                                    
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </th>
-            </tr>
-        }
-    </tbody>
-</table>
-
-
-
+<SectionTableData _Budget="_Budget" />
 
 @code {
-    private Dictionary<Section, Collapse> _SectionCategoryCollapseDictionary = new Dictionary<Section, Collapse>();
-
-    private Dictionary<Category, Collapse> _CategoryCollapseDictionary = new Dictionary<Category, Collapse>();
-
     [Parameter]
     public int _BudgetId { get; set; }
 
-    public List<Account> _Accounts;
-
-    //private Collapse collapse1 = default!;
-
-    public List<Transaction> _Transactions;
-
     private Collapse _AddSectionCollapse = default!;
 
-    private Budget _Budget;
+    private Budget? _Budget;
 
-    private Dictionary<Section, List<Category>> _Sections = new();
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         using(var context = new ApplicationDbContext())
         {
-            _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == _BudgetId);
-
-            _Accounts = context.Accounts.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
-
-            var accountIds = _Accounts.Select(a => a.AccountId).ToList();       //ChatGPT suggested, as EF cannot convert a collection to sql (which is what I was trying to do before with a complex LINQ query)
-            _Transactions = context.Transactions
-                .Where(x => accountIds.Contains(x.AccountId))
-                .ToList();
-
-            List<Section> _BudgetSections = context.Sections.Where(x => x.BudgetId == _Budget.BudgetId).ToList();
-
-            foreach(Section section in _BudgetSections)
-            {
-                List<Category> connectedCategories = context.Categories.Where(x => x.Section == section).ToList();
-
-                _Sections.Add(section, connectedCategories);
-            }
-
-            foreach(var Section in _Sections)
-            {
-                Collapse newCollapse = default!;
-                _SectionCategoryCollapseDictionary.Add(Section.Key, newCollapse);
-
-                foreach (var category in Section.Value)
-                {
-                    Collapse newCollapse2 = default!;
-                    _CategoryCollapseDictionary.Add(category, newCollapse2);
-                }
-            }
-
-            OrderLists();
-        }
-    }
-
-    private void DeleteSection(Section section)
-    {
-        using(var context = new ApplicationDbContext())
-        {
-            foreach (Category cat in context.Categories.Where(x => x.SectionId == section.SectionId))
-            {
-                _CategoryCollapseDictionary.Remove(cat);
-            }
-
-            context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
-
-            _Sections.Remove(section);
-            _SectionCategoryCollapseDictionary.Remove(section);
-            context.Sections.Remove(section);
-
-            context.SaveChanges();
-        }
-        StateHasChanged();
-    }
-
-    private void OrderLists()
-    {
-        _Sections = _Sections.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
-        foreach (var key in _Sections)
-        {
-            var orderedCategories = key.Value.OrderBy(x => x.CategoryName).ToList();
-            key.Value.Clear();
-            key.Value.AddRange(orderedCategories);
+            _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
+            DataManager.GenerateCollapseComponents(_Budget);
         }
     }
 
     private void UpdateState()
     {
-        OrderLists();
+        DataManager.OrderLists();
         StateHasChanged();
     }
 }

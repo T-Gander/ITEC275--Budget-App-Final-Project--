@@ -3,30 +3,30 @@
 @inject NavigationManager NavigationManager
 
 <div id="newAssign" class="row justify-content-around">
-    <input @bind-value=_CurrentCategory.AssignedBudget class="col-md-6" />
+    <input @bind-value=_CurrentCategory!.AssignedBudget class="col-md-6" />
     <button class="col-md-4 btn btn-primary" @onclick=UpdateAssigned>Update</button>
 </div>
 
 
 @code {
     [Parameter]
-    public Collapse CollapseObj { get; set; }
+    public Collapse? CollapseObj { get; set; }
 
     [Parameter]
-    public Category _CurrentCategory { get; set; }
+    public Category? _CurrentCategory { get; set; }
 
     [Parameter]
-    public Section _Section { get; set; }
+    public Section? _Section { get; set; }
 
     private async void UpdateAssigned()
     {
         using (var context = new ApplicationDbContext())
         {
-            context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory.CategoryId).AssignedBudget = _CurrentCategory.AssignedBudget;
+            context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!.AssignedBudget = _CurrentCategory!.AssignedBudget;
             context.SaveChanges();
         }
 
-        await CollapseObj.ToggleAsync();
+        await CollapseObj!.ToggleAsync();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 

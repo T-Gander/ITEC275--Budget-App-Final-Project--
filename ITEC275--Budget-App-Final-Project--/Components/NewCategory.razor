@@ -1,6 +1,7 @@
 ﻿@using BlazorBootstrap
 
 @inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div id="newSection" class="row justify-content-around">
     <label class="col-md-3 align-content-center">Category Name:</label>
@@ -11,16 +12,13 @@
 
 @code {
     [Parameter]
-    public Collapse CollapseObj { get; set; }
+    public Collapse? CollapseObj { get; set; }
 
     [Parameter]
-    public Section _Section { get; set; }
+    public Section? _Section { get; set; }
 
     [Parameter]
-    public Dictionary<Section, List<Category>> _SectionCategoryList { get; set; }
-
-    [Parameter]
-    public Dictionary<Category, Collapse> _CategoryCollapse { get; set; }
+    public Budget? _Budget { get; set; }
 
     private Category _NewCategory = new();
 
@@ -28,30 +26,18 @@
     {
         using(var context = new ApplicationDbContext())
         {
-            _NewCategory.SectionId = _Section.SectionId;
+            _NewCategory.SectionId = _Section!.SectionId;
             context.Categories.Add(_NewCategory);
             context.SaveChanges();
 
-            _SectionCategoryList[_Section].Add(_NewCategory);
+            DataManager.BudgetSectionCategoriesDictionary![_Budget!][_Section].Add(_NewCategory);
             Collapse newCollapse = default!;
-            _CategoryCollapse.Add(_NewCategory, newCollapse);
+            DataManager.CategoryCollapseDictionary!.Add(_NewCategory, newCollapse);
 
-            OrderLists();
+            DataManager.OrderLists();
         }
         _NewCategory = new();
 
-        CollapseObj.ToggleAsync();
+        CollapseObj!.ToggleAsync();
     }
-
-    private void OrderLists()
-    {
-        _SectionCategoryList = _SectionCategoryList.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
-        foreach (var key in _SectionCategoryList)
-        {
-            var orderedCategories = key.Value.OrderBy(x => x.CategoryName).ToList();
-            key.Value.Clear();
-            key.Value.AddRange(orderedCategories);
-        }
-    }
-
 }

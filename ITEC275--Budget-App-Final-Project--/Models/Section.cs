@@ -10,10 +10,10 @@ namespace ITEC275__Budget_App_Final_Project__.Models
 
         public int BudgetId { get; set; }
 
-        public string SectionName { get; set; }
+        public string? SectionName { get; set; }
 
         [ForeignKey("BudgetId")]
-        public Budget Budget { get; set; }
+        public Budget? Budget { get; set; }
 
     }
 }

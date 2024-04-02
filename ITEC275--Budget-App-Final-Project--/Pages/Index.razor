@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject DataManager DataManager
 
 <PageTitle>Home</PageTitle>
 
@@ -11,7 +12,7 @@
 <button class="btn btn-primary mb-4" @onclick=NewBudget>New Budget</button>
 
 @* List all budgets *@
-@foreach(Budget b in _BudgetList)
+@foreach(Budget b in DataManager.BudgetAccountsTransactionsDictionary!.Keys)
 {
     <div class="row">
         <div class="col-md-6 align-content-center">
@@ -25,27 +26,18 @@
 
 
 @code {
-    private ClaimsPrincipal user;
+    private string _FirstName = "";
 
-    private string _FirstName;
+    private string _UserId = "";
 
-    private string _UserId;
-
-    private List<Budget> _BudgetList;
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authState.User;
+        DataManager.AuthenticationStateProvider = AuthenticationStateProvider;
 
-        using(var context = new ApplicationDbContext())
-        {
-            User loggedInUser = context.Users.FirstOrDefault(x => x.Email == user.Identity.Name);
-            _FirstName = loggedInUser.FirstName;
-            _UserId = loggedInUser.Id;
+        DataManager.LoadAllData();
 
-            _BudgetList = context.Budgets.Where(x => x.UserId == _UserId).ToList();
-        }
+        _FirstName = DataManager.LoggedInUser!.FirstName!;
+        _UserId = DataManager.LoggedInUser.Id;
     }
 
     private void NewBudget()

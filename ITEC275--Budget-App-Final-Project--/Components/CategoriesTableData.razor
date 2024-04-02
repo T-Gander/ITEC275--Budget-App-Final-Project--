@@ -1,0 +1,54 @@
+﻿@inject DataManager DataManager
+
+<table class="table">
+    <thead>
+        <tr class="table-primary align-content-center">
+            <th scope="col" class="text-center"><h5 style="margin:0;">Category Name</h5></th>
+            <th scope="col" class="text-center"><h5 style="margin:0;">Budget Assigned</h5></th>
+            <th scope="col" class="text-center"><h5 style="margin:0;">Amount Left to Transact</h5></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in _CategoryList!)
+        {
+            <tr>
+                <td class="text-center fw-normal">@category.CategoryName</td>
+                <td class="text-center fw-normal justify-content-center align-items-center flex-column">
+                    <div class="row justify-content-center">
+                        <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
+                        <button class="btn btn-primary col-md-4" @onclick="async () => await DataManager.CategoryCollapseDictionary![category].ToggleAsync()">Assign</button>
+                    </div>
+                    <div class="row justify-content-center">
+                        <Collapse class="col-md-12" @ref="DataManager.CategoryCollapseDictionary![category]" OnHiding="() => UpdateState()">
+                            <Card>
+                                <CardBody>
+                                    <AssignBudget CollapseObj="DataManager.CategoryCollapseDictionary![category]" _Section="_Section" _CurrentCategory="category" />
+                                </CardBody>
+                            </Card>
+                        </Collapse>
+                    </div>
+                </td>
+                <td class="text-center fw-normal">
+                    $@DataManager.CalculateCategoryLeftToTransact(_Budget!, category)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public List<Category>? _CategoryList { get; set; }
+
+    [Parameter]
+    public Section? _Section { get; set; }
+
+    [Parameter]
+    public Budget? _Budget { get; set; }
+
+    private void UpdateState()
+    {
+        DataManager.OrderLists();
+        StateHasChanged();
+    }
+}

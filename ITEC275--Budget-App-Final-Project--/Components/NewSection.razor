@@ -1,6 +1,7 @@
 ﻿@using BlazorBootstrap
 
 @inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div id="newSection" class="row justify-content-around">
     <label class="col-md-3 align-content-center">Section Name:</label>
@@ -8,19 +9,12 @@
     <button class="col-md-2 btn btn-primary" @onclick=AddASection>Add</button>
 </div>
 
-
 @code {
     [Parameter]
-    public Collapse CollapseObj { get; set; }
+    public Collapse? CollapseObj { get; set; }
 
     [Parameter]
-    public int _BudgetId { get; set; }
-
-    [Parameter]
-    public Dictionary<Section, List<Category>> _SectionsDictionary { get; set; }
-
-    [Parameter]
-    public Dictionary<Section, Collapse> _SectionCategoryCollapseDictionary { get; set; }
+    public Budget? _Budget { get; set; }
 
     private Section _NewSection = new();
 
@@ -28,30 +22,20 @@
     {
         using(var context = new ApplicationDbContext())
         {
-            _NewSection.BudgetId = _BudgetId;
+            _NewSection.BudgetId = _Budget.BudgetId;
             context.Sections.Add(_NewSection);
-            _SectionsDictionary.Add(_NewSection, new());
+            DataManager.BudgetSectionCategoriesDictionary![_Budget].Add(_NewSection, new());
 
             context.SaveChanges();
 
             Collapse newCollapse = default!;
-            _SectionCategoryCollapseDictionary.Add(_NewSection, newCollapse);
+
+            DataManager.SectionCollapseDictionary!.Add(_NewSection, newCollapse);
         }
         _NewSection = new();
 
-        OrderLists();
+        DataManager.OrderLists();
 
-        CollapseObj.ToggleAsync();
-    }
-
-    private void OrderLists()
-    {
-        _SectionsDictionary = _SectionsDictionary.OrderBy(x => x.Key.SectionName).ToDictionary(kv => kv.Key, kv => kv.Value);
-        foreach (var key in _SectionsDictionary)
-        {
-            var orderedCategories = key.Value.OrderBy(x => x.CategoryName).ToList();
-            key.Value.Clear();
-            key.Value.AddRange(orderedCategories);
-        }
+        CollapseObj!.ToggleAsync();
     }
 }

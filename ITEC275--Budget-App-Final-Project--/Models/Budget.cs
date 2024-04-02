@@ -9,12 +9,12 @@ namespace ITEC275__Budget_App_Final_Project__.Models
         [Key]
         public int BudgetId { get; set; }
         
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
-        public string BudgetName { get; set; }
+        public string? BudgetName { get; set; }
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
+        public User? User { get; set; }
 
     }
 }

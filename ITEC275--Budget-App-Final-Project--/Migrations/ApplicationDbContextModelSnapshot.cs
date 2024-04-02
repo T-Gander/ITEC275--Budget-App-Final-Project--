@@ -31,7 +31,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
 
                     b.Property<string>("AccountName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("BudgetId")
@@ -53,11 +52,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BudgetId"));
 
                     b.Property<string>("BudgetName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("BudgetId");
@@ -79,7 +76,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CategoryName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SectionId")
@@ -104,7 +100,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SectionName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("SectionId");
@@ -132,7 +127,6 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Payee")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TransactionDate")
@@ -168,11 +162,9 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
@@ -373,9 +365,7 @@ namespace ITEC275__Budget_App_Final_Project__.Migrations
                 {
                     b.HasOne("ITEC275__Budget_App_Final_Project__.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });

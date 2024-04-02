@@ -11,10 +11,10 @@ namespace ITEC275__Budget_App_Final_Project__.Models
 
         public int BudgetId { get; set; }
 
-        public string AccountName { get; set; }
+        public string? AccountName { get; set; }
 
         [ForeignKey(nameof(BudgetId))]
-        public Budget Budget { get; set; }
+        public Budget? Budget { get; set; }
 
     }
 }
