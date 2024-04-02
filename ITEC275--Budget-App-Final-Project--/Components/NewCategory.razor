@@ -17,9 +17,6 @@
     [Parameter]
     public Section? _Section { get; set; }
 
-    [Parameter]
-    public Budget? _Budget { get; set; }
-
     private Category _NewCategory = new();
 
     private void AddACategory()
@@ -30,7 +27,7 @@
             context.Categories.Add(_NewCategory);
             context.SaveChanges();
 
-            DataManager.BudgetSectionCategoriesDictionary![_Budget!][_Section].Add(_NewCategory);
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section].Add(_NewCategory);
             Collapse newCollapse = default!;
             DataManager.CategoryCollapseDictionary!.Add(_NewCategory, newCollapse);
 

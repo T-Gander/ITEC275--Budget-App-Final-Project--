@@ -28,6 +28,8 @@ namespace ITEC275__Budget_App_Final_Project__
 
         public User? LoggedInUser { get; set; } = new();
 
+        public Budget? CurrentBudget { get; set; }
+
         public void GenerateCollapseComponents(Budget budget)
         {
             foreach (Section Section in BudgetSectionCategoriesDictionary![budget].Keys)

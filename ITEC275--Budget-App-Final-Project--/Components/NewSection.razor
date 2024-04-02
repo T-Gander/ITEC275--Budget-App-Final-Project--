@@ -13,18 +13,15 @@
     [Parameter]
     public Collapse? CollapseObj { get; set; }
 
-    [Parameter]
-    public Budget? _Budget { get; set; }
-
     private Section _NewSection = new();
 
     private void AddASection()
     {
         using(var context = new ApplicationDbContext())
         {
-            _NewSection.BudgetId = _Budget.BudgetId;
+            _NewSection.BudgetId = DataManager.CurrentBudget!.BudgetId;
             context.Sections.Add(_NewSection);
-            DataManager.BudgetSectionCategoriesDictionary![_Budget].Add(_NewSection, new());
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Add(_NewSection, new());
 
             context.SaveChanges();
 

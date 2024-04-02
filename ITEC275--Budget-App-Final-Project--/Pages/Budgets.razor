@@ -17,13 +17,13 @@
     <Collapse @ref=_AddSectionCollapse OnHiding="() => UpdateState()">
         <Card class="col-md-7">
             <CardBody>
-                <NewSection CollapseObj=_AddSectionCollapse _Budget="_Budget"/>
+                <NewSection CollapseObj=_AddSectionCollapse />
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-<SectionTableData _Budget="_Budget" />
+<SectionTableData />
 
 @code {
     [Parameter]
@@ -38,6 +38,7 @@
         using(var context = new ApplicationDbContext())
         {
             _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
+            DataManager.CurrentBudget = _Budget;
             DataManager.GenerateCollapseComponents(_Budget);
         }
     }

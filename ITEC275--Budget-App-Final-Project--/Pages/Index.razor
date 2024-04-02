@@ -19,7 +19,7 @@
             <h3><strong>@b.BudgetName</strong></h3>
         </div>
         <div class="col-md-3">
-            <button class="btn btn-primary" @onclick="() => ViewBudget(b.BudgetId)">View</button>
+            <button class="btn btn-primary" @onclick="() => ViewBudget(b)">View</button>
         </div>
     </div>
 }
@@ -45,9 +45,9 @@
         NavigationManager.NavigateTo($"./NewBudget", true);
     }
 
-    private void ViewBudget(int budgetId)
+    private void ViewBudget(Budget b)
     {
-        NavigationManager.NavigateTo($"./Budgets/{budgetId}", true);    
+        NavigationManager.NavigateTo($"./Budgets/{b.BudgetId}", true);    
     }
 }
 

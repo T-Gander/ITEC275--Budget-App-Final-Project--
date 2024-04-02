@@ -2,7 +2,7 @@
 
 <table class="table table-bordered">
     <tbody>
-        @foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![_Budget])
+        @foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!])
         {
             <tr>
                 <th>
@@ -15,13 +15,13 @@
                         <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="() => UpdateState()">
                             <Card class="col-md-9">
                                 <CardBody>
-                                    <NewCategory CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" _Budget="_Budget" />
+                                    <NewCategory CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" />
                                 </CardBody>
                             </Card>
                         </Collapse>
                     </div>
 
-                    <CategoriesTableData _Budget="_Budget" _CategoryList="Section.Value" _Section="Section.Key" />
+                    <CategoriesTableData _CategoryList="Section.Value" _Section="Section.Key" />
                 </th>
             </tr>
         }
@@ -29,10 +29,6 @@
 </table>
 
 @code {
-    [Parameter]
-    public Budget? _Budget { get; set; }
-
-
     private void DeleteSection(Section section)
     {
         using (var context = new ApplicationDbContext())
@@ -44,7 +40,7 @@
 
             context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
 
-            DataManager.BudgetSectionCategoriesDictionary![_Budget!].Remove(section);
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Remove(section);
             DataManager.SectionCollapseDictionary!.Remove(section);
             context.Sections.Remove(section);
 

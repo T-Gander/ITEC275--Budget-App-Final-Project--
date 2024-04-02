@@ -29,7 +29,7 @@
                     </div>
                 </td>
                 <td class="text-center fw-normal">
-                    $@DataManager.CalculateCategoryLeftToTransact(_Budget!, category)
+                    $@DataManager.CalculateCategoryLeftToTransact(DataManager.CurrentBudget!, category)
                 </td>
             </tr>
         }
@@ -42,9 +42,6 @@
 
     [Parameter]
     public Section? _Section { get; set; }
-
-    [Parameter]
-    public Budget? _Budget { get; set; }
 
     private void UpdateState()
     {
