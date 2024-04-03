@@ -26,9 +26,10 @@
             context.Categories.Add(_NewCategory);
             context.SaveChanges();
 
-            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section].Add(_NewCategory);
-            Collapse newCollapse = default!;
-            DataManager.CategoryCollapseDictionary!.Add(_NewCategory, newCollapse);
+            Category newCategory = context.Categories.FirstOrDefault(x => x.CategoryId == _NewCategory.CategoryId)!;
+
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section].Add(newCategory);
+            DataManager.CategoryCollapseDictionary!.Add(newCategory, new());
 
             DataManager.OrderLists();
         }

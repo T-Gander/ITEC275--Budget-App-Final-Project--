@@ -1,4 +1,4 @@
-﻿@page "/Budgets/{budgetId:int}/Accounts"
+﻿@page "/Budgets/Accounts"
 
 @inject NavigationManager NavigationManager
 @inject DataManager DataManager
@@ -10,7 +10,7 @@
     <Collapse @ref=_AddAccountCollapse>
         <Card class="col-md-6">
             <CardBody >
-                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="budgetId" />
+                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="DataManager.CurrentBudget.BudgetId" />
             </CardBody>
         </Card>
     </Collapse>
@@ -36,9 +36,6 @@
 }
 
 @code {
-    [Parameter]
-    public int budgetId { get; set; }
-
     private Collapse _AddAccountCollapse = default!;
 
     protected override void OnInitialized()
@@ -46,8 +43,8 @@
         
     }
 
-    private void NavigateToTransactions(int accountId)
+    private void NavigateToTransactions(int _accountId)
     {
-        NavigationManager.NavigateTo($"./Budgets/{budgetId}/Accounts/{accountId}/Transactions");
+        NavigationManager.NavigateTo($"./Budgets/Accounts/{_accountId}/Transactions");
     }
 }

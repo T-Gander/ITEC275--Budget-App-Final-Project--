@@ -1,4 +1,5 @@
 ﻿@inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div id="newTransaction" class="row justify-content-around">
     <div class="row mb-2 justify-content-between">
@@ -13,9 +14,12 @@
         <label class="col-md-8">Category:</label>
         <select @bind=_NewTransaction.CategoryId>
             <option>Select a Value...</option>
-            @foreach(Category category in _Categories)
+            @foreach (List<Category> categoriesList in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Values)
             {
-                <option value="@category.CategoryId">@category.CategoryName</option>
+                foreach(Category category in categoriesList)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
             }
         </select>
     </div>
@@ -33,30 +37,13 @@
     public Collapse CollapseObj { get; set; }
 
     [Parameter]
-    public int _BudgetId { get; set; }
-
-    [Parameter]
     public int _AccountId { get; set; }
-
-    private List<Category> _Categories = new();
-
-    private List<Section> _Sections = new();
 
     public Transaction _NewTransaction = new();
 
     protected override void OnInitialized()
     {
         _NewTransaction.TransactionDate = DateTime.Now;
-
-        using (var context = new ApplicationDbContext())
-        {
-            _Sections = context.Sections.Where(x => x.BudgetId == _BudgetId).ToList();
-
-            foreach (Section section in _Sections)
-            {
-                _Categories.AddRange(context.Categories.Where(x => x.SectionId == section.SectionId));
-            }
-        }
     }
 
     private void AddNewTransaction()
@@ -64,6 +51,7 @@
         using(var context = new ApplicationDbContext())
         {
             _NewTransaction.AccountId = _AccountId;
+
             if(_NewTransaction.CategoryId != null)
             {
                 if (_NewTransaction.IsCredit)
@@ -71,12 +59,16 @@
                 else
                     context.Categories.FirstOrDefault(x => x.CategoryId == _NewTransaction.CategoryId).AssignedBudget -= _NewTransaction.TransactionValue;
             }
+
+            Account _Account = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Keys.FirstOrDefault(x => x.AccountId == _AccountId)!;
+
+            DataManager.BudgetAccountsTransactionsDictionary[DataManager.CurrentBudget!][_Account].Add(_NewTransaction);
+
             context.Transactions.Add(_NewTransaction);
             context.SaveChanges();
         }
 
         CollapseObj.ToggleAsync();
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
 }

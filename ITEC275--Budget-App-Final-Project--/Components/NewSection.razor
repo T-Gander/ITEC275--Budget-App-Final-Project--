@@ -23,9 +23,10 @@
             context.Sections.Add(_NewSection);
             context.SaveChanges();
 
-            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Add(_NewSection, new());
-            Collapse newCollapse = default!;
-            DataManager.SectionCollapseDictionary!.Add(_NewSection, newCollapse);
+            Section newSection = context.Sections.FirstOrDefault(x => x.SectionId == _NewSection.SectionId)!;
+
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Add(newSection, new());
+            DataManager.SectionCollapseDictionary!.Add(newSection, new());
 
             DataManager.OrderLists();
         }

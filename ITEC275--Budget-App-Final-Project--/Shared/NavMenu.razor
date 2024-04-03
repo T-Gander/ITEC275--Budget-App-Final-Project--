@@ -53,14 +53,6 @@
         if(NavigationManager.Uri.Contains("Budget") && !NavigationManager.Uri.Contains("NewBudget"))
         {
             _ShowBudgetControls = true;
-            
-            int indexOfId = NavigationManager.Uri.IndexOf("Budgets/")+8;
-            int indexOfEndId = NavigationManager.Uri.Substring(indexOfId).IndexOf("/");
-
-            if (indexOfEndId == -1)
-                _BudgetId = int.Parse(NavigationManager.Uri.Substring(indexOfId));
-            else
-                _BudgetId = int.Parse(NavigationManager.Uri.Substring(indexOfId, indexOfEndId));
         }
     }
 
@@ -81,6 +73,6 @@
 
     private void NavigateToAccounts()
     {
-        NavigationManager.NavigateTo($"/Budgets/{_BudgetId}/Accounts", true);
+        NavigationManager.NavigateTo($"/Budgets/Accounts", true);
     }
 }

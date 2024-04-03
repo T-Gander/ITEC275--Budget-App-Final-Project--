@@ -1,0 +1,66 @@
+﻿@inject DataManager DataManager
+
+<table class="table">
+    <thead>
+        <tr class="table-primary">
+            <th scope="col" class="text-center"><h5>Transaction Date</h5></th>
+            <th scope="col" class="text-center"><h5>Payee</h5></th>
+            <th scope="col" class="text-center"><h5>Category</h5></th>
+            <th scope="col" class="text-center"><h5>Outflow</h5></th>
+            <th scope="col" class="text-center"><h5>Inflow</h5></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in _AllTransactions![DataManager.CurrentBudget!][_Account!])
+        {
+            <tr>
+                <td class="text-center">@transaction.TransactionDate</td>
+                <td class="text-center fw-normal">@transaction.Payee</td>
+                @if (transaction.CategoryId != null)
+                {
+                    bool foundCategory = false;
+
+                    foreach (var categoryList in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Values)
+                    {
+                        foreach (Category cat in categoryList)
+                        {
+                            if (cat.CategoryId == transaction.CategoryId)
+                            {
+                                <td class="text-center fw-normal">@categoryList.FirstOrDefault(x => x.CategoryId == transaction.CategoryId)!.CategoryName</td>
+                                foundCategory = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!foundCategory)
+                    {
+                        <td class="text-center fw-normal">No Category</td>
+                    }
+                }
+                else
+                {
+                    <td class="text-center fw-normal">No Category</td>
+                }
+
+                @if (transaction.IsCredit)
+                {
+                    <td class="text-center fw-normal"></td>
+                    <td class="text-center fw-normal text-success">@String.Format("{0:0.00}", transaction.TransactionValue)</td> @*Make these editable.*@
+                }
+                else
+                {
+                    <td class="text-center fw-normal text-danger">@String.Format("{0:0.00}", transaction.TransactionValue)</td>
+                    <td class="text-center fw-normal"></td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Account, List<Transaction>>>? _AllTransactions { get; set; }
+
+    [Parameter]
+    public Account? _Account { get; set; }
+}

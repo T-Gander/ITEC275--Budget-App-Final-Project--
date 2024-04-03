@@ -15,7 +15,7 @@
                 <td class="text-center fw-normal align-content-center">@category.CategoryName</td>
                 <td class="text-center fw-normal justify-content-center align-items-center flex-column">
                     <div class="row justify-content-center">
-                        <label class="col-md-4 align-self-center">Assigned: $@category.AssignedBudget</label>
+                        <label class="col-md-4 align-self-center">Assigned: $@String.Format("{0:0.00}", category.AssignedBudget)</label>
                         <button class="btn btn-primary col-md-4" @onclick="async () => await DataManager.CategoryCollapseDictionary![category].ToggleAsync()">Assign</button>
                     </div>
                     <div class="row justify-content-center">
@@ -39,6 +39,9 @@
 @code {
     [Parameter]
     public List<Category>? _CategoryList { get; set; }
+
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Section, List<Category>>> _AllCategories { get; set; }
 
     [Parameter]
     public Section? _Section { get; set; }
