@@ -34,7 +34,7 @@ namespace ITEC275__Budget_App_Final_Project__
         {
             foreach (Section Section in BudgetSectionCategoriesDictionary![budget].Keys)
             {
-                Collapse newCollapse = default!;
+                Collapse newCollapse = new();
                 SectionCollapseDictionary![Section] = newCollapse;
             }
 
@@ -42,7 +42,7 @@ namespace ITEC275__Budget_App_Final_Project__
             {
                 foreach(Category category in categorys)
                 {
-                    Collapse newCollapse2 = default!;
+                    Collapse newCollapse2 = new();
                     CategoryCollapseDictionary![category] = newCollapse2;
                 }
             }

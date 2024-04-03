@@ -9,7 +9,7 @@
                     <div class="row mb-1 align-content-center justify-content-between">
                         <h4 class="col-md-6 m-0 align-content-center ms-1">@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
                         <div class="col-md-6 row justify-content-end">
-                            <button class="btn btn-primary col-md-1 m-1 ms-3" style="width: 100px;" @onclick="async () => await DataManager.SectionCollapseDictionary![Section.Key].ToggleAsync()">Add</button>
+                            <button class="btn btn-primary col-md-1 m-1 ms-3" style="width: 100px;" @onclick="async () => AddSection(Section.Key)">Add</button>
                             <button class="btn btn-danger col-md-1 m-1 me-3" style="width: 100px;" @onclick="() => DeleteSection(Section.Key)">Delete</button>
                         </div>
                         
@@ -38,6 +38,16 @@
 
     [Parameter]
     public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
+
+    private async void AddSection(Section section)
+    {
+        //DataManager.ResetCollapseObjects(DataManager.CurrentBudget!);
+        using(var context = new ApplicationDbContext())
+        {
+            Section foundSection = context.Sections.FirstOrDefault(x => x.SectionId == section.SectionId)!;
+            await DataManager.SectionCollapseDictionary![foundSection].ToggleAsync();
+        }
+    }
 
     private void DeleteSection(Section section)
     {
