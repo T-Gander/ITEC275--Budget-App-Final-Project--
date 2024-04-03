@@ -48,6 +48,19 @@ namespace ITEC275__Budget_App_Final_Project__
             }
         }
 
+        private void ClearCollapseComponents(Budget budget)
+        {
+            SectionCollapseDictionary!.Clear();
+            CategoryCollapseDictionary!.Clear();
+        }
+
+        public void ResetCollapseObjects(Budget budget)
+        {
+            ClearCollapseComponents(budget);
+            GenerateCollapseComponents(budget);
+        }
+       
+
         private async void LoadUser()
         {
             ClaimsPrincipal user;
@@ -204,21 +217,6 @@ namespace ITEC275__Budget_App_Final_Project__
                                 .AddRange(context.Categories.Where(x => x.SectionId == s.SectionId));
                         }
                     }
-
-                    ////Start populating the sections
-                    //foreach(Budget b in BudgetSectionCategoriesDictionary!.Keys)
-                    //{
-                    //    await context.Sections
-                    //        .Where(x => x.BudgetId == b.BudgetId)
-                    //        .ForEachAsync(y => BudgetSectionCategoriesDictionary[b].Add(y, new()));
-
-                    //    //Populate the categories for each section
-                    //    foreach (Section s in BudgetSectionCategoriesDictionary[b].Keys)
-                    //    {
-                    //        BudgetSectionCategoriesDictionary[b][s]
-                    //            .AddRange(context.Categories.Where(x => x.SectionId == s.SectionId));
-                    //    }
-                    //}
                 };
                     
                 await _OrderLists();

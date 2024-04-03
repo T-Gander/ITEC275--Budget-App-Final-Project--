@@ -14,28 +14,33 @@
 <button class="btn btn-primary col-md-3 mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
 
 <div class="row mb-4">
-    <Collapse @ref=_AddSectionCollapse OnHiding="() => UpdateState()">
+    <Collapse @ref=_AddSectionCollapse OnHiding="UpdateState">
         <Card class="col-md-7">
             <CardBody>
-                <NewSection CollapseObj=_AddSectionCollapse/>
+                <NewSection AllSections=AllSections CollapseObj=_AddSectionCollapse RefreshParentState="StateHasChanged" />
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-<SectionTableData _AllSections="DataManager.BudgetSectionCategoriesDictionary" />    @* In order to update the state, I needed to pass through the dictionary *@
+<SectionTableData AllSections=AllSections RefreshParentState="StateHasChanged" />    @* In order to update the state, I needed to pass through the dictionary *@
 
 @code {
     [Parameter]
     public int _BudgetId { get; set; }
 
+    private Budget _Budget;
+
+    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
+
     private Collapse _AddSectionCollapse = default!;
 
     protected override void OnInitialized()
     {
+        AllSections = DataManager.BudgetSectionCategoriesDictionary;
         using(var context = new ApplicationDbContext())
         {
-            Budget _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
+            _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
             DataManager.CurrentBudget = _Budget;
             DataManager.GenerateCollapseComponents(_Budget);
         }
@@ -44,6 +49,10 @@
     private void UpdateState()
     {
         DataManager.OrderLists();
+        DataManager.CurrentBudget = _Budget;
+        DataManager.CalculateAllAssignedAssets(_Budget);
+        DataManager.CalculateAssets(_Budget);
+        DataManager.ResetCollapseObjects(_Budget);
         StateHasChanged();
     }
 }

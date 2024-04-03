@@ -1,6 +1,6 @@
 ﻿@inject DataManager DataManager
 
-@foreach (var Section in _AllSections![DataManager.CurrentBudget!])
+@foreach (var Section in AllSections![DataManager.CurrentBudget!])
 {
     <table class="table table-bordered">
         <tbody>
@@ -15,16 +15,16 @@
                         
                     </div>
                     <div class="row">
-                        <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="() => UpdateState()">
+                        <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="UpdateState">
                             <Card class="col-md-9">
                                 <CardBody>
-                                    <NewCategory CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" />
+                                    <NewCategory AllSections=AllSections CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" RefreshParentState="RefreshParentState"/>
                                 </CardBody>
                             </Card>
                         </Collapse>
                     </div>
 
-                    <CategoriesTableData _AllCategories=DataManager.BudgetSectionCategoriesDictionary _CategoryList="Section.Value" _Section="Section.Key" />
+                    <CategoriesTableData AllSections=AllSections _Section="Section.Key" RefreshParentState="RefreshParentState" />
                 </th>
             </tr>
         </tbody>
@@ -34,7 +34,10 @@
   
 @code {
     [Parameter]
-    public Dictionary<Budget, Dictionary<Section, List<Category>>>? _AllSections { get; set;}
+    public EventCallback RefreshParentState { get; set; }
+
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
 
     private void DeleteSection(Section section)
     {
@@ -47,7 +50,7 @@
 
             context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
 
-            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Remove(section);
+            AllSections![DataManager.CurrentBudget!].Remove(section);
             DataManager.SectionCollapseDictionary!.Remove(section);
             context.Sections.Remove(section);
 
@@ -60,5 +63,6 @@
     {
         DataManager.OrderLists();
         StateHasChanged();
+        RefreshParentState.InvokeAsync();
     }
 }

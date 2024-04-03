@@ -1,14 +1,21 @@
 ﻿@using BlazorBootstrap
 
 @inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div id="newAssign" class="row justify-content-around">
-    <input @bind-value=_CurrentCategory!.AssignedBudget class="col-md-6" />
-    <button class="col-md-4 btn btn-primary" @onclick=UpdateAssigned>Update</button>
+    <input @bind-value=_AddBudget class="col-md-6" />
+    <button class="col-md-4 btn btn-primary" @onclick=UpdateAssigned>Done</button>
 </div>
 
 
 @code {
+    [Parameter]
+    public EventCallback RefreshParentState { get; set; }
+
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Section, List<Category>>> AllSections { get; set; }
+
     [Parameter]
     public Collapse? CollapseObj { get; set; }
 
@@ -18,16 +25,27 @@
     [Parameter]
     public Section? _Section { get; set; }
 
+    private decimal _AddBudget;
+
     private async void UpdateAssigned()
     {
         using (var context = new ApplicationDbContext())
         {
-            context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!.AssignedBudget = _CurrentCategory!.AssignedBudget;
+            context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!.AssignedBudget += _AddBudget;
             context.SaveChanges();
+
+            Category categoryToUpdate = AllSections[DataManager.CurrentBudget!][_Section!].FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!;
+
+            int indexOfCategory = AllSections[DataManager.CurrentBudget][_Section].IndexOf(categoryToUpdate);
+
+            AllSections[DataManager.CurrentBudget][_Section][indexOfCategory].AssignedBudget += _AddBudget;
         }
 
+        _AddBudget = 0;
+
         await CollapseObj!.ToggleAsync();
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+
+        await RefreshParentState.InvokeAsync();
     }
 
 }

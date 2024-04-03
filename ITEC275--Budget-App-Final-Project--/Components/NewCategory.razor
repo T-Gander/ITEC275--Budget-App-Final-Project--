@@ -11,6 +11,12 @@
 
 @code {
     [Parameter]
+    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
+
+    [Parameter]
+    public EventCallback RefreshParentState { get; set; }
+
+    [Parameter]
     public Collapse? CollapseObj { get; set; }
 
     [Parameter]
@@ -28,7 +34,7 @@
 
             Category newCategory = context.Categories.FirstOrDefault(x => x.CategoryId == _NewCategory.CategoryId)!;
 
-            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section].Add(newCategory);
+            AllSections![DataManager.CurrentBudget!][_Section].Add(newCategory);
             DataManager.CategoryCollapseDictionary!.Add(newCategory, new());
 
             DataManager.OrderLists();
@@ -36,5 +42,7 @@
         _NewCategory = new();
 
         CollapseObj!.ToggleAsync();
+
+        RefreshParentState.InvokeAsync();
     }
 }
