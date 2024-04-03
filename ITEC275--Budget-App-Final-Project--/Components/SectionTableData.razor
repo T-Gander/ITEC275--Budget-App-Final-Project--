@@ -1,7 +1,5 @@
 ﻿@inject DataManager DataManager
 
-<Button @onclick=StateHasChanged>Refresh</Button>
-
 @foreach (var Section in _AllSections![DataManager.CurrentBudget!])
 {
     <table class="table table-bordered">
@@ -33,8 +31,6 @@
     </table>
 
 }
-
-
   
 @code {
     [Parameter]

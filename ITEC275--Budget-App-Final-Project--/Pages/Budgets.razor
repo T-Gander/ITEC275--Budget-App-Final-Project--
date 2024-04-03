@@ -2,13 +2,13 @@
 
 @inject DataManager DataManager
 
-<h1>Budget Name: @_Budget!.BudgetName.</h1>
+<h1>Budget Name: @DataManager.CurrentBudget!.BudgetName.</h1>
 <h2>
-    Total Assets: $@DataManager.CalculateAssets(_Budget)
+    Total Assets: $@DataManager.CalculateAssets(DataManager.CurrentBudget!)
 </h2>
 
 <h2>
-    Unassigned Assets: $@(DataManager.CalculateAssets(_Budget) - DataManager.CalculateAllAssignedAssets(_Budget))
+    Unassigned Assets: $@(DataManager.CalculateAssets(DataManager.CurrentBudget!) - DataManager.CalculateAllAssignedAssets(DataManager.CurrentBudget!))
 </h2>
 
 <button class="btn btn-primary col-md-3 mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
@@ -31,13 +31,11 @@
 
     private Collapse _AddSectionCollapse = default!;
 
-    private Budget? _Budget;
-
     protected override void OnInitialized()
     {
         using(var context = new ApplicationDbContext())
         {
-            _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
+            Budget _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
             DataManager.CurrentBudget = _Budget;
             DataManager.GenerateCollapseComponents(_Budget);
         }

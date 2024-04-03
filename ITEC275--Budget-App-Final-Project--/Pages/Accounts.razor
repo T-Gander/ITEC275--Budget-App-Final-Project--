@@ -1,8 +1,9 @@
 ﻿@page "/Budgets/{budgetId:int}/Accounts"
 
 @inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
-<h3>My Accounts for Budget: @_Budget.BudgetName</h3>
+<h3>My Accounts for Budget: @DataManager.CurrentBudget!.BudgetName</h3>
 
 <button class="btn btn-primary mb-2" @onclick="async () => await _AddAccountCollapse.ToggleAsync()">Add an Account</button>
 <div class="row mb-6">
@@ -15,10 +16,11 @@
     </Collapse>
 </div>
 
-@foreach(var account in _BudgetAccounts)
+@foreach(var account in DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget].Keys)
 {
     <h5>@account.AccountName</h5>
-    <h5>Current Balance: $@_Transactions.Where(x => x.AccountId == account.AccountId).Sum(x =>
+    <h5>
+        Current Balance: $@DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget][account].Sum(x =>
        {
            if (!x.IsCredit)
            {
@@ -39,23 +41,9 @@
 
     private Collapse _AddAccountCollapse = default!;
 
-    private Budget _Budget;
-
-    private List<Account> _BudgetAccounts = new();
-
-    private List<Transaction> _Transactions = new();
-
     protected override void OnInitialized()
     {
-        using(var context = new ApplicationDbContext())
-        {
-            _Budget = context.Budgets.FirstOrDefault(x => x.BudgetId == budgetId);
-            _BudgetAccounts = context.Accounts.Where(x => x.BudgetId == budgetId).ToList();
-            //_Transactions = context.Transactions.Where(x => _BudgetAccounts.Any(y => y.AccountId == x.AccountId)).ToList();
-
-            var accountIds = _BudgetAccounts.Select(a => a.AccountId).ToList();       //ChatGPT suggested, as EF cannot convert a collection to sql (which is what I was trying to do before with a complex LINQ query)
-            _Transactions = context.Transactions.Where(x => accountIds.Contains(x.AccountId)).ToList();
-        }
+        
     }
 
     private void NavigateToTransactions(int accountId)
