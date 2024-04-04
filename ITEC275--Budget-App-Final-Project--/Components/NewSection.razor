@@ -18,6 +18,11 @@
 
     private Section _NewSection = new();
 
+    protected override void OnInitialized()
+    {
+        RefreshParentState.InvokeAsync();
+    }
+
     private void AddASection()
     {
         using(var context = new ApplicationDbContext())

@@ -14,7 +14,7 @@
 <button class="btn btn-primary col-md-3 mb-2" @onclick="async () => await _AddSectionCollapse.ToggleAsync()">Add a Section</button>
 
 <div class="row mb-4">
-    <Collapse @ref=_AddSectionCollapse OnHiding="UpdateState">
+    <Collapse @ref=_AddSectionCollapse OnHiding="UpdateState" >
         <Card class="col-md-7">
             <CardBody>
                 <NewSection CollapseObj=_AddSectionCollapse RefreshParentState="StateHasChanged" />
@@ -31,7 +31,7 @@
 
     private Budget _Budget;
 
-    private Collapse _AddSectionCollapse = default!;
+    private Collapse _AddSectionCollapse = new();
 
     protected override void OnInitialized()
     {

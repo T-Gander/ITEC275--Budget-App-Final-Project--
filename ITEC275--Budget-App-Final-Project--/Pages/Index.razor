@@ -32,10 +32,6 @@
 
     protected override void OnInitialized()
     {
-        DataManager.AuthenticationStateProvider = AuthenticationStateProvider;
-
-        DataManager.LoadAllData();
-
         _FirstName = DataManager.LoggedInUser!.FirstName!;
         _UserId = DataManager.LoggedInUser.Id;
     }

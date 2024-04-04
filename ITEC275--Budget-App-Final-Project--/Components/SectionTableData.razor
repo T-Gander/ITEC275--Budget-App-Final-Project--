@@ -37,6 +37,12 @@
     [Parameter]
     public EventCallback RefreshParentState { get; set; }
 
+
+    protected override void OnInitialized()
+    {
+        RefreshParentState.InvokeAsync();
+    }
+
     private void AddCategoryToggle(Section section)
     {
         using(var context = new ApplicationDbContext())

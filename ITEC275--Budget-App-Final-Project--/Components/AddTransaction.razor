@@ -14,7 +14,7 @@
         <label class="col-md-4">Category:</label>
         <select class="col-md-4" style="height: 30px;" @bind=_NewTransaction.CategoryId>
             <option>Select a Value...</option>
-            @foreach (List<Category> categoriesList in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Values)
+            @foreach (List<Category> categoriesList in DataManager.BudgetSectionCategoriesDictionary![_CurrentBudget!].Values)
             {
                 foreach(Category category in categoriesList)
                 {
@@ -44,6 +44,9 @@
     [Parameter]
     public int _AccountId { get; set; }
 
+    [Parameter]
+    public Budget _CurrentBudget { get; set; }
+
     private bool isCredit = false;
 
     public Transaction _NewTransaction = new();
@@ -63,21 +66,15 @@
             if(_NewTransaction.CategoryId != null)
             {
                 if (_NewTransaction.IsCredit)
-                    context.Categories.FirstOrDefault(x => x.CategoryId == _NewTransaction.CategoryId).AssignedBudget += _NewTransaction.TransactionValue;
+                    context.Categories.FirstOrDefault(x => x.CategoryId == _NewTransaction.CategoryId)!.AssignedBudget += _NewTransaction.TransactionValue;
                 else
-                    context.Categories.FirstOrDefault(x => x.CategoryId == _NewTransaction.CategoryId).AssignedBudget -= _NewTransaction.TransactionValue;
+                    context.Categories.FirstOrDefault(x => x.CategoryId == _NewTransaction.CategoryId)!.AssignedBudget -= _NewTransaction.TransactionValue;
             }
-
-            Account _Account = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Keys.FirstOrDefault(x => x.AccountId == _AccountId)!;
-
-            DataManager.BudgetAccountsTransactionsDictionary[DataManager.CurrentBudget!][_Account].Add(_NewTransaction);
 
             context.Transactions.Add(_NewTransaction);
             context.SaveChanges();
         }
 
-        DataManager.OrderLists();
-        CollapseObj.ToggleAsync();
         NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 

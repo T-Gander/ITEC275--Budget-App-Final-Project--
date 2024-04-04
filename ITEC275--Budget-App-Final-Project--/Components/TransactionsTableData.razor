@@ -1,4 +1,5 @@
 ﻿@inject DataManager DataManager
+@inject NavigationManager NavigationManager
 
 <table class="table">
     <thead>
@@ -11,7 +12,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var transaction in DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!][_Account!])
+        @foreach (var transaction in DataManager.BudgetAccountsTransactionsDictionary![_CurrentBudget!][_Account!])
         {
             <tr>
                 <td class="text-center align-content-center">
@@ -23,7 +24,7 @@
                 {
                     bool foundCategory = false;
 
-                    foreach (var categoryList in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Values)
+                    foreach (var categoryList in DataManager.BudgetSectionCategoriesDictionary![_CurrentBudget!].Values)
                     {
                         foreach (Category cat in categoryList)
                         {
@@ -62,16 +63,13 @@
 
 @code {
     [Parameter]
+    public Budget? _CurrentBudget { get; set; }
+
+    [Parameter]
     public Account? _Account { get; set; }
 
     [Parameter]
     public EventCallback ParentStateRefresh { get; set; }
-
-    protected override void OnInitialized()
-    {
-        //Orders transactions
-        DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!][_Account!] = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!][_Account!].OrderByDescending(x => x.TransactionDate).ToList();
-    }
 
     private void DeleteTransaction(Transaction Transaction)
     {
@@ -79,11 +77,14 @@
         {
             context.Transactions.Remove(Transaction);
 
-            DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!][_Account!].Remove(Transaction);
+            DataManager.BudgetAccountsTransactionsDictionary![_CurrentBudget!][_Account!].Remove(Transaction);
+
+            //Update assigned budget in both local and database.
+            //DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!]
 
             context.SaveChanges();
         }
 
-        ParentStateRefresh.InvokeAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 }

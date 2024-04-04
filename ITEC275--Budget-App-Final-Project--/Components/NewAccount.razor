@@ -19,17 +19,12 @@
 </div>
 
 
-
-
 @code {
-    [Parameter]
-    public EventCallback ParentStateRefresh { get; set; }
-
     [Parameter]
     public Collapse CollapseObj { get; set; }
 
     [Parameter]
-    public int _BudgetId { get; set; }
+    public Budget _Budget { get; set; }
 
     public Account _NewAccount = new();
 
@@ -40,7 +35,7 @@
         //Add account.
         //Add initial transaction containing a credit equal to Starting Assets.
 
-        _NewAccount.BudgetId = _BudgetId;
+        _NewAccount.BudgetId = _Budget.BudgetId;
         InitialTransaction.Payee = "Starting Balance";
         InitialTransaction.TransactionDate = DateTime.Now;
         InitialTransaction.Account = _NewAccount;
@@ -52,22 +47,8 @@
         {
             context.Transactions.Add(InitialTransaction);
             await context.SaveChangesAsync();
-           
-
-            newTransaction = context.Transactions.Include(x => x.Account).FirstOrDefault(x => x.Account!.AccountName == _NewAccount.AccountName)!;
-            newAccount = newTransaction.Account!;
         }
-
-        DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Add(newAccount, new() { newTransaction });
-
-        DataManager.OrderLists();
-
-        _NewAccount = new();
-
-        InitialTransaction = new();
-
-        await CollapseObj.ToggleAsync();
-        await ParentStateRefresh.InvokeAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
 }

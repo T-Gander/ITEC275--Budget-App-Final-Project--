@@ -1,31 +1,38 @@
-﻿@page "/Budgets/Accounts/{accountId:int}/Transactions"
+﻿@page "/Budgets/{budgetId:int}/Accounts/{accountId:int}/Transactions"
 
 @inject DataManager DataManager
 
 <h3>Transactions</h3>
 
-<TransactionsTableData _Account="_Account" ParentStateRefresh="UpdateState" />
+<TransactionsTableData _Account="_Account" _CurrentBudget="_Budget" ParentStateRefresh="UpdateState" />
 
 <button Class="btn btn-primary" @onclick="async () => await _AddTransactionCollapse.ToggleAsync()">Add Transaction</button>
 <Collapse class="col-md-12" @ref="_AddTransactionCollapse" OnHiding="() => UpdateState()">
     <Card>
         <CardBody>
-            <AddTransaction CollapseObj="_AddTransactionCollapse" _AccountId="_Account!.AccountId" />
+            <AddTransaction _CurrentBudget="_Budget" CollapseObj="_AddTransactionCollapse" _AccountId="_Account!.AccountId" />
         </CardBody>
     </Card>
 </Collapse>
 
 @code {
     [Parameter]
-    public int accountId { get; set; }
+    public int AccountId { get; set; }
+
+    [Parameter]
+    public int BudgetId { get; set; }
 
     public Account? _Account;
+
+    private Budget? _Budget;
 
     private Collapse _AddTransactionCollapse = default!;
 
     protected override void OnInitialized()
     {
-        _Account = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Keys.FirstOrDefault(x => x.AccountId == accountId);
+        _Budget = DataManager.BudgetAccountsTransactionsDictionary!.FirstOrDefault(x => x.Key.BudgetId == BudgetId).Key;
+        DataManager.CurrentBudget = _Budget;
+        _Account = DataManager.BudgetAccountsTransactionsDictionary![_Budget].Keys.FirstOrDefault(x => x.AccountId == AccountId);
     }
 
     private void UpdateState()

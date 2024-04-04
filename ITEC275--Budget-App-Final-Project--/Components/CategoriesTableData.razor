@@ -3,9 +3,9 @@
 <table class="table table-borderless mb-0">
     <thead>
         <tr class="table-primary align-content-center">
-            <th scope="col" class="text-center"><h5 style="margin:0;">Category Name</h5></th>
-            <th scope="col" class="text-center"><h5 style="margin:0;">Budget Assigned</h5></th>
-            <th scope="col" class="text-center"><h5 style="margin:0;">Amount Left to Transact</h5></th>
+            <th scope="col" class="text-center w-25"><h5 style="margin:0;">Category Name</h5></th>
+            <th scope="col" class="text-center w-25"><h5 style="margin:0;">Budget Assigned</h5></th>
+            <th scope="col" class="text-center w-25"><h5 style="margin:0;">Amount Left to Transact</h5></th>
         </tr>
     </thead>
     <tbody>
@@ -13,22 +13,24 @@
         {
             <tr>
                 <td class="text-center fw-normal align-content-center">@category.CategoryName</td>
-                <td class="text-center fw-normal justify-content-center align-items-center flex-column">
+                <td class="text-center fw-normal justify-content-evenly align-items-center flex-column">
                     <div class="row justify-content-center">
-                        <button class="btn btn-primary col-md-4" @onclick="async () => await DataManager.CategoryCollapseDictionary![category].ToggleAsync()">Add</button>
+                        <button class="btn btn-primary col-md-5" @onclick="async () => await DataManager.CategoryCollapseDictionary![category].ToggleAsync()">Add</button>
                     </div>
                     <div class="row justify-content-center">
-                        <Collapse class="col-md-12" @ref="DataManager.CategoryCollapseDictionary![category]" OnHiding="UpdateState">
-                            <Card>
-                                <CardBody>
-                                    <AssignBudget CollapseObj="DataManager.CategoryCollapseDictionary![category]" _Section="_Section" _CurrentCategory="category" RefreshParentState="RefreshParentState"/>
-                                </CardBody>
-                            </Card>
-                        </Collapse>
+                        <div class="row col-md-12">
+                            <Collapse class="col-md-12" @ref="DataManager.CategoryCollapseDictionary![category]" OnHiding="UpdateState">
+                                <Card>
+                                    <CardBody>
+                                        <AssignBudget CollapseObj="DataManager.CategoryCollapseDictionary![category]" _Section="_Section" _CurrentCategory="category" RefreshParentState="RefreshParentState" />
+                                    </CardBody>
+                                </Card>
+                            </Collapse>
+                        </div>
                     </div>
                 </td>
                 <td class="text-center fw-normal align-content-center">
-                    $@String.Format("{0:0.00}", DataManager.CalculateCategoryLeftToTransact(DataManager.BudgetSectionCategoriesDictionary!.Keys.FirstOrDefault(x => x.BudgetId == DataManager.CurrentBudget!.BudgetId!)!, category))
+                    $@String.Format("{0:0.00}", category.AssignedBudget)
                 </td>
             </tr>
         }

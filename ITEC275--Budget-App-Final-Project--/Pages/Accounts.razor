@@ -1,23 +1,23 @@
-﻿@page "/Budgets/Accounts"
+﻿@page "/Budgets/{BudgetId:int}/Accounts/"
 
 @inject NavigationManager NavigationManager
 @inject DataManager DataManager
 
-<h3>My Accounts for Budget: @DataManager.CurrentBudget!.BudgetName</h3>
+<h3>My Accounts for Budget: @_CurrentBudget!.BudgetName</h3>
 
 <button class="btn btn-primary mb-2" @onclick="async () => await _AddAccountCollapse.ToggleAsync()">Add an Account</button>
 <div class="row mb-6">
     <Collapse @ref=_AddAccountCollapse>
         <Card class="col-md-6">
             <CardBody >
-                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="DataManager.CurrentBudget.BudgetId" ParentStateRefresh="StateHasChanged"/>
+                <NewAccount CollapseObj=_AddAccountCollapse _Budget="_CurrentBudget"/>
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
 <div class="row">
-    @foreach (var account in DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget].Keys)
+    @foreach (var account in DataManager.BudgetAccountsTransactionsDictionary![_CurrentBudget].Keys)
     {
         <div class="col-md-4">
             <table class="table table-bordered">
@@ -29,7 +29,7 @@
                             </div>
                             <div class="row">
                                 <h5>
-                                    Current Balance: $@DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget][account].Sum(x =>
+                                    Current Balance: $@DataManager.BudgetAccountsTransactionsDictionary![_CurrentBudget][account].Sum(x =>
                                 {
                                     if (!x.IsCredit)
                                     {
@@ -58,16 +58,25 @@
     [Parameter]
     public Dictionary<Budget, Dictionary<Account, List<Transaction>>>? AllAccounts { get; set; }
 
+    [Parameter]
+    public int AccountId { get; set; }
+
+    [Parameter]
+    public int BudgetId { get; set; }
+
+    public Budget? _CurrentBudget;
+
     private Collapse _AddAccountCollapse = default!;
 
     protected override void OnInitialized()
     {
-
+        _CurrentBudget = DataManager.BudgetAccountsTransactionsDictionary!.FirstOrDefault(x => x.Key.BudgetId == BudgetId).Key;
+        DataManager.CurrentBudget = _CurrentBudget;
     }
 
     private void NavigateToTransactions(int _accountId)
     {
-        NavigationManager.NavigateTo($"./Budgets/Accounts/{_accountId}/Transactions");
+        NavigationManager.NavigateTo($"./Budgets/{_CurrentBudget.BudgetId}/Accounts/{_accountId}/Transactions");
     }
 
     private void DeleteAccount(int _accountId)
@@ -78,10 +87,8 @@
             context.Accounts.Remove(accountToRemove);
             context.Transactions.RemoveRange(context.Transactions.Where(x => x.AccountId == accountToRemove.AccountId));
             context.SaveChanges();
-            Account localAccountToRemove = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Keys.First(x => x.AccountId == _accountId);
-            DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Remove(localAccountToRemove);
         }
 
-        StateHasChanged();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 }

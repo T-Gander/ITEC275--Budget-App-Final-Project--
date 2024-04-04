@@ -7,11 +7,24 @@ using ITEC275__Budget_App_Final_Project__.Pages;
 using Microsoft.Identity.Client;
 using Microsoft.EntityFrameworkCore;
 using System.CodeDom;
+using Microsoft.AspNetCore.Identity;
 
 namespace ITEC275__Budget_App_Final_Project__
 {
     public class DataManager
     {
+        public DataManager(AuthenticationStateProvider authState)
+        {
+            _AuthStateManager = authState;
+            LoadUser();
+            using(var context = new ApplicationDbContext())
+            {
+                LoadAllData(context);
+            }
+        }
+
+        private AuthenticationStateProvider _AuthStateManager;
+
         public Dictionary<Budget, Dictionary<Account, List<Transaction>>>? BudgetAccountsTransactionsDictionary { get; set; } = new();
 
         public Dictionary<Budget, Dictionary<Section, List<Category>>>? BudgetSectionCategoriesDictionary { get; set; } = new();
@@ -24,11 +37,11 @@ namespace ITEC275__Budget_App_Final_Project__
 
         public Dictionary<Category, Collapse>? CategoryCollapseDictionary { get; set; } = new();
 
-        public AuthenticationStateProvider? AuthenticationStateProvider { get; set; }
-
         public User? LoggedInUser { get; set; } = new();
 
         public Budget? CurrentBudget { get; set; }
+
+        public Account? CurrentAccount { get; set; }
 
         public void GenerateCollapseComponents(Budget budget)
         {
@@ -63,10 +76,8 @@ namespace ITEC275__Budget_App_Final_Project__
 
         private async void LoadUser()
         {
-            ClaimsPrincipal user;
-
-            var authState = await AuthenticationStateProvider!.GetAuthenticationStateAsync();
-            user = authState.User;
+            var User = await _AuthStateManager.GetAuthenticationStateAsync();
+            var user = User.User;
 
             if (user != null)
             {
@@ -171,7 +182,7 @@ namespace ITEC275__Budget_App_Final_Project__
             return TotalUnassignedAssetsPerBudget[budget];
         }
 
-        public async void LoadAllData()
+        public void LoadAllData(ApplicationDbContext context)
         {
             bool authenticated = CheckAuthentication();
 
@@ -180,9 +191,8 @@ namespace ITEC275__Budget_App_Final_Project__
                 ClearData();
                 LoadUser();
 
-                using (var context = new ApplicationDbContext())
+                try
                 {
-                    //Add all associated budgets attached to the logged in user.
                     context.Budgets
                         .Where(x => x.UserId == LoggedInUser!.Id).ToList()
                         .ForEach(x =>
@@ -190,13 +200,15 @@ namespace ITEC275__Budget_App_Final_Project__
                             BudgetAccountsTransactionsDictionary!.Add(x, new Dictionary<Account, List<Transaction>>());
                             BudgetSectionCategoriesDictionary!.Add(x, new Dictionary<Section, List<Category>>());
                         });
+                    //Add all associated budgets attached to the logged in user.
+
 
                     //Populate each budget with its associated accounts.
-                    foreach(Budget b in BudgetAccountsTransactionsDictionary!.Keys)
+                    foreach (Budget b in BudgetAccountsTransactionsDictionary!.Keys)
                     {
-                        await context.Accounts
-                            .Where(x => x.BudgetId == b.BudgetId)
-                            .ForEachAsync(x => BudgetAccountsTransactionsDictionary[b].Add(x, new()));
+                        context.Accounts
+                            .Where(x => x.BudgetId == b.BudgetId).ToList()
+                            .ForEach(x => BudgetAccountsTransactionsDictionary[b].Add(x, new()));
 
                         //Populate all of the transactions for each account.
                         foreach (Account a in BudgetAccountsTransactionsDictionary[b].Keys)
@@ -206,20 +218,24 @@ namespace ITEC275__Budget_App_Final_Project__
                         }
 
                         //Also populate the budget-section-category whilst we're here.
-                        await context.Sections
-                           .Where(x => x.BudgetId == b.BudgetId)
-                           .ForEachAsync(y => BudgetSectionCategoriesDictionary![b].Add(y, new()));
+                        context.Sections
+                            .Where(x => x.BudgetId == b.BudgetId).ToList()
+                            .ForEach(y => BudgetSectionCategoriesDictionary![b].Add(y, new()));
 
                         //Populate the categories for each section
                         foreach (Section s in BudgetSectionCategoriesDictionary![b].Keys)
                         {
                             BudgetSectionCategoriesDictionary[b][s]
-                                .AddRange(context.Categories.Where(x => x.SectionId == s.SectionId));
+                                .AddRange(context.Categories.Where(x => x.SectionId == s.SectionId).ToList());
                         }
                     }
-                };
+                }
+                catch
+                {
+
+                }
                     
-                await _OrderLists();
+                _OrderLists();
             }
             else
             {
@@ -236,27 +252,21 @@ namespace ITEC275__Budget_App_Final_Project__
             LoggedInUser = new();
         }
 
-        private async Task _OrderLists()
+        private void _OrderLists()
         {
-            //I hope I never need to debug this...
-
             //Order the budgets accounts and transactions
-            var budgetAccountsSort = Task.Run(() =>
-            {
-                BudgetAccountsTransactionsDictionary =
-                    BudgetAccountsTransactionsDictionary!
-                        .OrderBy(x => x.Key.BudgetName)
-                        .ToDictionary(kv => kv.Key, kv => kv.Value
-                            .OrderBy(innerKv => innerKv.Key.AccountName) //Order the inner dictionary by AccountName
-                            .ToDictionary(innerKv => innerKv.Key, innerKv => innerKv.Value
-                                .OrderBy(dateVal => dateVal.TransactionDate)    //Order the transaction list by date
-                                .ToList()));
-            });
+           BudgetAccountsTransactionsDictionary =
+                                        BudgetAccountsTransactionsDictionary!
+                                            .OrderBy(x => x.Key.BudgetName)
+                                            .ToDictionary(kv => kv.Key, kv => kv.Value
+                                                .OrderBy(innerKv => innerKv.Key.AccountName) //Order the inner dictionary by AccountName
+                                                .ToDictionary(innerKv => innerKv.Key, innerKv => innerKv.Value
+                                                    .OrderByDescending(dateVal => dateVal.TransactionDate)    //Order the transaction list by date
+                                                    .ToList()));
+            
 
             //Order the budgets sections and categories.
-            var budgetSectionsSort = Task.Run(() =>
-            {
-                BudgetSectionCategoriesDictionary =
+            BudgetSectionCategoriesDictionary =
                 BudgetSectionCategoriesDictionary!
                     .OrderBy(x => x.Key.BudgetName)
                     .ToDictionary(kv => kv.Key, kv => kv.Value
@@ -264,14 +274,11 @@ namespace ITEC275__Budget_App_Final_Project__
                         .ToDictionary(innerKv => innerKv.Key, innerKv => innerKv.Value
                             .OrderBy(catVal => catVal.CategoryName)     //Order by Category name
                             .ToList()));
-            });
-
-            await Task.WhenAll(budgetAccountsSort, budgetSectionsSort);
         }
 
-        public async void OrderLists()
+        public void OrderLists()
         {
-            await _OrderLists();
+            _OrderLists();
         }
     }
 }

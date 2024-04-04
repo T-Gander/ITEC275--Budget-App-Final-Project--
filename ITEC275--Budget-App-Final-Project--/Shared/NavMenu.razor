@@ -1,8 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">To Do App</a>
+        <a class="navbar-brand" href="">Budgeting App</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -73,6 +74,6 @@
 
     private void NavigateToAccounts()
     {
-        NavigationManager.NavigateTo($"/Budgets/Accounts", true);
+        NavigationManager.NavigateTo($"/Budgets/{DataManager.CurrentBudget.BudgetId}/Accounts/", true);
     }
 }
