@@ -9,7 +9,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var category in AllSections![DataManager.CurrentBudget!][_Section!]!)
+        @foreach (var category in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section!]!)
         {
             <tr>
                 <td class="text-center fw-normal align-content-center">@category.CategoryName</td>
@@ -21,14 +21,14 @@
                         <Collapse class="col-md-12" @ref="DataManager.CategoryCollapseDictionary![category]" OnHiding="UpdateState">
                             <Card>
                                 <CardBody>
-                                    <AssignBudget AllSections=AllSections CollapseObj="DataManager.CategoryCollapseDictionary![category]" _Section="_Section" _CurrentCategory="category" RefreshParentState="RefreshParentState"/>
+                                    <AssignBudget CollapseObj="DataManager.CategoryCollapseDictionary![category]" _Section="_Section" _CurrentCategory="category" RefreshParentState="RefreshParentState"/>
                                 </CardBody>
                             </Card>
                         </Collapse>
                     </div>
                 </td>
                 <td class="text-center fw-normal align-content-center">
-                    $@String.Format("{0:0.00}", DataManager.CalculateCategoryLeftToTransact(AllSections.Keys.FirstOrDefault(x => x.BudgetId == DataManager.CurrentBudget!.BudgetId!)!, category))
+                    $@String.Format("{0:0.00}", DataManager.CalculateCategoryLeftToTransact(DataManager.BudgetSectionCategoriesDictionary!.Keys.FirstOrDefault(x => x.BudgetId == DataManager.CurrentBudget!.BudgetId!)!, category))
                 </td>
             </tr>
         }
@@ -40,10 +40,16 @@
     public EventCallback RefreshParentState { get; set; }
 
     [Parameter]
-    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
-
-    [Parameter]
     public Section? _Section { get; set; }
+
+    private void ToggleAdd(Category category)
+    {
+        using (var context = new ApplicationDbContext())
+        {
+            Category foundCategory = DataManager.CategoryCollapseDictionary!.Keys.FirstOrDefault(x => x.CategoryId == category.CategoryId)!;
+            DataManager.CategoryCollapseDictionary![foundCategory].ToggleAsync();
+        }
+    }
 
     private void UpdateState()
     {

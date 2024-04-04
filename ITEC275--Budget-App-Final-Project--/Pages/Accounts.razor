@@ -10,41 +10,78 @@
     <Collapse @ref=_AddAccountCollapse>
         <Card class="col-md-6">
             <CardBody >
-                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="DataManager.CurrentBudget.BudgetId" />
+                <NewAccount CollapseObj=_AddAccountCollapse _BudgetId="DataManager.CurrentBudget.BudgetId" ParentStateRefresh="StateHasChanged"/>
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-@foreach(var account in DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget].Keys)
-{
-    <h5>@account.AccountName</h5>
-    <h5>
-        Current Balance: $@DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget][account].Sum(x =>
-       {
-           if (!x.IsCredit)
-           {
-               return x.TransactionValue * -1;
-           }
-           else
-           {
-               return x.TransactionValue;
-           }
-       })</h5>
-    
-    <button class="btn btn-primary" @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
-}
+<div class="row">
+    @foreach (var account in DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget].Keys)
+    {
+        <div class="col-md-4">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>
+                            <div class="row mb-1 align-content-center justify-content-between">
+                                <h4 class="col-md-6 m-0 align-content-center ms-1">@account.AccountName</h4>
+                            </div>
+                            <div class="row">
+                                <h5>
+                                    Current Balance: $@DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget][account].Sum(x =>
+                                {
+                                    if (!x.IsCredit)
+                                    {
+                                        return x.TransactionValue * -1;
+                                    }
+                                    else
+                                    {
+                                        return x.TransactionValue;
+                                    }
+                                })
+                                </h5>
+                            </div>
+                            <button class="btn btn-primary" @onclick="() => NavigateToTransactions(account.AccountId)">View Transactions</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteAccount(account.AccountId)">Delete</button>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+
 
 @code {
+    [Parameter]
+    public Dictionary<Budget, Dictionary<Account, List<Transaction>>>? AllAccounts { get; set; }
+
     private Collapse _AddAccountCollapse = default!;
 
     protected override void OnInitialized()
     {
-        
+
     }
 
     private void NavigateToTransactions(int _accountId)
     {
         NavigationManager.NavigateTo($"./Budgets/Accounts/{_accountId}/Transactions");
+    }
+
+    private void DeleteAccount(int _accountId)
+    {
+        using(var context = new ApplicationDbContext())
+        {
+            Account accountToRemove = context.Accounts.FirstOrDefault(x => x.AccountId == _accountId)!;
+            context.Accounts.Remove(accountToRemove);
+            context.Transactions.RemoveRange(context.Transactions.Where(x => x.AccountId == accountToRemove.AccountId));
+            context.SaveChanges();
+            Account localAccountToRemove = DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Keys.First(x => x.AccountId == _accountId);
+            DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Remove(localAccountToRemove);
+        }
+
+        StateHasChanged();
     }
 }

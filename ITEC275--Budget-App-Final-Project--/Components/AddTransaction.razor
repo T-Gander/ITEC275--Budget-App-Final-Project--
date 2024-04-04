@@ -3,16 +3,16 @@
 
 <div id="newTransaction" class="row justify-content-around">
     <div class="row mb-2 justify-content-between">
-        <label class="col-md-8">Transaction Date:</label>
+        <label class="col-md-4">Transaction Date:</label>
         <input class="col-md-4" @bind-value=_NewTransaction.TransactionDate />
     </div>
     <div class="row mb-2 justify-content-between">
-        <label class="col-md-8">Payee:</label>
+        <label class="col-md-4">Payee:</label>
         <input class="col-md-4" @bind-value=_NewTransaction.Payee />
     </div>
     <div class="row mb-2 justify-content-between">
-        <label class="col-md-8">Category:</label>
-        <select @bind=_NewTransaction.CategoryId>
+        <label class="col-md-4">Category:</label>
+        <select class="col-md-4" style="height: 30px;" @bind=_NewTransaction.CategoryId>
             <option>Select a Value...</option>
             @foreach (List<Category> categoriesList in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Values)
             {
@@ -24,8 +24,13 @@
         </select>
     </div>
     <div class="row mb-2 justify-content-between">
-        <label class="col-md-8">Transaction Value:</label>
+        <label class="col-md-4">Transaction Value:</label>
         <input class="col-md-4" @bind-value=_NewTransaction.TransactionValue /> 
+    </div>
+    <div class="row mb-2 justify-content-end">
+        <label class="col-md-2">Is Credit?</label>
+        <div class="col-md-1"></div>
+        <input @bind-value=isCredit class="col-md-1" type="checkbox" />
     </div>
     <div class="row mb-2 justify-content-end">
         <button class="col-md-4 btn btn-primary" @onclick=AddNewTransaction>Add</button>
@@ -39,6 +44,8 @@
     [Parameter]
     public int _AccountId { get; set; }
 
+    private bool isCredit = false;
+
     public Transaction _NewTransaction = new();
 
     protected override void OnInitialized()
@@ -51,6 +58,7 @@
         using(var context = new ApplicationDbContext())
         {
             _NewTransaction.AccountId = _AccountId;
+            _NewTransaction.IsCredit = isCredit;
 
             if(_NewTransaction.CategoryId != null)
             {
@@ -68,7 +76,9 @@
             context.SaveChanges();
         }
 
+        DataManager.OrderLists();
         CollapseObj.ToggleAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 
 }

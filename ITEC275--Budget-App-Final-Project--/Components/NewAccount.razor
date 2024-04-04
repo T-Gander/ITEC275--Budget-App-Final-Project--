@@ -1,6 +1,7 @@
 ﻿@using BlazorBootstrap
 
 @inject NavigationManager NavigationManager
+@inject DataManager DataManager
 
 <div id="newAccount" class="row justify-content-around">
     <div class="row mb-2 justify-content-between">
@@ -17,7 +18,13 @@
     
 </div>
 
+
+
+
 @code {
+    [Parameter]
+    public EventCallback ParentStateRefresh { get; set; }
+
     [Parameter]
     public Collapse CollapseObj { get; set; }
 
@@ -39,14 +46,28 @@
         InitialTransaction.Account = _NewAccount;
         InitialTransaction.IsCredit = true;
 
+        Account newAccount;
+        Transaction newTransaction;
         using(var context = new ApplicationDbContext())
         {
             context.Transactions.Add(InitialTransaction);
             await context.SaveChangesAsync();
+           
+
+            newTransaction = context.Transactions.Include(x => x.Account).FirstOrDefault(x => x.Account!.AccountName == _NewAccount.AccountName)!;
+            newAccount = newTransaction.Account!;
         }
 
+        DataManager.BudgetAccountsTransactionsDictionary![DataManager.CurrentBudget!].Add(newAccount, new() { newTransaction });
+
+        DataManager.OrderLists();
+
+        _NewAccount = new();
+
+        InitialTransaction = new();
+
         await CollapseObj.ToggleAsync();
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+        await ParentStateRefresh.InvokeAsync();
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿@inject DataManager DataManager
+@inject NavigationManager NavigationManager
 
-@foreach (var Section in AllSections![DataManager.CurrentBudget!])
+@foreach (var Section in DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!])
 {
     <table class="table table-bordered">
         <tbody>
@@ -9,7 +10,7 @@
                     <div class="row mb-1 align-content-center justify-content-between">
                         <h4 class="col-md-6 m-0 align-content-center ms-1">@Section.Key.SectionName, Total Assigned Budget: $@Section.Value.Sum(x => x.AssignedBudget)</h4>
                         <div class="col-md-6 row justify-content-end">
-                            <button class="btn btn-primary col-md-1 m-1 ms-3" style="width: 100px;" @onclick="async () => AddSection(Section.Key)">Add</button>
+                            <button class="btn btn-primary col-md-1 m-1 ms-3" style="width: 100px;" @onclick="() => AddCategoryToggle(Section.Key)">Add</button>
                             <button class="btn btn-danger col-md-1 m-1 me-3" style="width: 100px;" @onclick="() => DeleteSection(Section.Key)">Delete</button>
                         </div>
                         
@@ -18,13 +19,13 @@
                         <Collapse @ref=DataManager.SectionCollapseDictionary![Section.Key] OnHiding="UpdateState">
                             <Card class="col-md-9">
                                 <CardBody>
-                                    <NewCategory AllSections=AllSections CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" RefreshParentState="RefreshParentState"/>
+                                    <NewCategory CollapseObj="DataManager.SectionCollapseDictionary![Section.Key]" _Section="Section.Key" RefreshParentState="RefreshParentState"/>
                                 </CardBody>
                             </Card>
                         </Collapse>
                     </div>
 
-                    <CategoriesTableData AllSections=AllSections _Section="Section.Key" RefreshParentState="RefreshParentState" />
+                    <CategoriesTableData _Section="Section.Key" RefreshParentState="RefreshParentState" />
                 </th>
             </tr>
         </tbody>
@@ -36,16 +37,16 @@
     [Parameter]
     public EventCallback RefreshParentState { get; set; }
 
-    [Parameter]
-    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
-
-    private async void AddSection(Section section)
+    private void AddCategoryToggle(Section section)
     {
-        //DataManager.ResetCollapseObjects(DataManager.CurrentBudget!);
         using(var context = new ApplicationDbContext())
         {
-            Section foundSection = context.Sections.FirstOrDefault(x => x.SectionId == section.SectionId)!;
-            await DataManager.SectionCollapseDictionary![foundSection].ToggleAsync();
+            //Section foundSection = context.Sections.Include(x => x.Budget).FirstOrDefault(x => x.SectionId == section.SectionId)!;        
+            //bool containsSection = SectionCollapseDictionary.ContainsKey(foundSection);   <-- It's wild that this comes back false. Took a long time to debug, must be something to do with memory.
+
+            Section foundSection = DataManager.SectionCollapseDictionary!.Keys.FirstOrDefault(x => x.SectionId == section.SectionId)!;
+            bool test = DataManager.SectionCollapseDictionary.ContainsKey(foundSection);
+            DataManager.SectionCollapseDictionary[foundSection!].ToggleAsync();
         }
     }
 
@@ -55,18 +56,23 @@
         {
             foreach (Category cat in context.Categories.Where(x => x.SectionId == section.SectionId))
             {
-                DataManager.CategoryCollapseDictionary!.Remove(cat);
+                Category catDel = DataManager.CategoryCollapseDictionary!.Keys.FirstOrDefault(x => x.CategoryId == cat.CategoryId)!;
+                DataManager.CategoryCollapseDictionary!.Remove(catDel);
             }
 
             context.Categories.RemoveRange(context.Categories.Where(x => x.SectionId == section.SectionId));
 
-            AllSections![DataManager.CurrentBudget!].Remove(section);
-            DataManager.SectionCollapseDictionary!.Remove(section);
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!].Remove(section);
+
+            Section secDel = DataManager.SectionCollapseDictionary!.Keys.FirstOrDefault(x => x.SectionId == section.SectionId)!;
+            DataManager.SectionCollapseDictionary!.Remove(secDel);
+
             context.Sections.Remove(section);
 
             context.SaveChanges();
         }
-        StateHasChanged();
+        RefreshParentState.InvokeAsync();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);  //Couldn't figure out weird JS issues
     }
 
     private void UpdateState()

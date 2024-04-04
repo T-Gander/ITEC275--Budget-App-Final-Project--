@@ -11,9 +11,6 @@
 
 @code {
     [Parameter]
-    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
-
-    [Parameter]
     public EventCallback RefreshParentState { get; set; }
 
     [Parameter]
@@ -31,15 +28,17 @@
 
             Section newSection = context.Sections.FirstOrDefault(x => x.SectionId == _NewSection.SectionId)!;
 
-            AllSections![DataManager.CurrentBudget].Add(newSection, new());
-            DataManager.SectionCollapseDictionary!.Add(newSection, new());
-
-            DataManager.OrderLists();
+            DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget].Add(newSection, new());
+            Collapse newCollapse = new Collapse();
+            DataManager.SectionCollapseDictionary!.Add(newSection, newCollapse);
         }
+
         _NewSection = new();
 
         CollapseObj!.ToggleAsync();
 
-        RefreshParentState.InvokeAsync();
+        DataManager.OrderLists();
+
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
     }
 }

@@ -17,13 +17,13 @@
     <Collapse @ref=_AddSectionCollapse OnHiding="UpdateState">
         <Card class="col-md-7">
             <CardBody>
-                <NewSection AllSections=AllSections CollapseObj=_AddSectionCollapse RefreshParentState="StateHasChanged" />
+                <NewSection CollapseObj=_AddSectionCollapse RefreshParentState="StateHasChanged" />
             </CardBody>
         </Card>
     </Collapse>
 </div>
 
-<SectionTableData AllSections=AllSections RefreshParentState="StateHasChanged" />    @* In order to update the state, I needed to pass through the dictionary *@
+<SectionTableData RefreshParentState="StateHasChanged" />    @* In order to update the state, I needed to pass through the dictionary *@
 
 @code {
     [Parameter]
@@ -31,13 +31,10 @@
 
     private Budget _Budget;
 
-    public Dictionary<Budget, Dictionary<Section, List<Category>>>? AllSections { get; set; }
-
     private Collapse _AddSectionCollapse = default!;
 
     protected override void OnInitialized()
     {
-        AllSections = DataManager.BudgetSectionCategoriesDictionary;
         using(var context = new ApplicationDbContext())
         {
             _Budget = DataManager.BudgetAccountsTransactionsDictionary!.Keys.FirstOrDefault(x => x.BudgetId == _BudgetId)!;
@@ -48,11 +45,6 @@
 
     private void UpdateState()
     {
-        DataManager.OrderLists();
-        DataManager.CurrentBudget = _Budget;
-        DataManager.CalculateAllAssignedAssets(_Budget);
-        DataManager.CalculateAssets(_Budget);
-        DataManager.ResetCollapseObjects(_Budget);
         StateHasChanged();
     }
 }

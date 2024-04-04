@@ -14,9 +14,6 @@
     public EventCallback RefreshParentState { get; set; }
 
     [Parameter]
-    public Dictionary<Budget, Dictionary<Section, List<Category>>> AllSections { get; set; }
-
-    [Parameter]
     public Collapse? CollapseObj { get; set; }
 
     [Parameter]
@@ -34,14 +31,15 @@
             context.Categories.FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!.AssignedBudget += _AddBudget;
             context.SaveChanges();
 
-            Category categoryToUpdate = AllSections[DataManager.CurrentBudget!][_Section!].FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!;
+            Category categoryToUpdate = DataManager.BudgetSectionCategoriesDictionary![DataManager.CurrentBudget!][_Section!].FirstOrDefault(x => x.CategoryId == _CurrentCategory!.CategoryId)!;
 
-            int indexOfCategory = AllSections[DataManager.CurrentBudget][_Section].IndexOf(categoryToUpdate);
+            int indexOfCategory = DataManager.BudgetSectionCategoriesDictionary[DataManager.CurrentBudget!][_Section!].IndexOf(categoryToUpdate);
 
-            AllSections[DataManager.CurrentBudget][_Section][indexOfCategory].AssignedBudget += _AddBudget;
+            DataManager.BudgetSectionCategoriesDictionary[DataManager.CurrentBudget!][_Section!][indexOfCategory].AssignedBudget += _AddBudget;
         }
 
         _AddBudget = 0;
+        DataManager.OrderLists();
 
         await CollapseObj!.ToggleAsync();
 

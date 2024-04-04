@@ -4,7 +4,7 @@
 
 <h3>Transactions</h3>
 
-<TransactionsTableData _Account="_Account" _AllTransactions="DataManager.BudgetAccountsTransactionsDictionary" />
+<TransactionsTableData _Account="_Account" ParentStateRefresh="UpdateState" />
 
 <button Class="btn btn-primary" @onclick="async () => await _AddTransactionCollapse.ToggleAsync()">Add Transaction</button>
 <Collapse class="col-md-12" @ref="_AddTransactionCollapse" OnHiding="() => UpdateState()">

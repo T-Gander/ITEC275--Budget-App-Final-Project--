@@ -29,15 +29,15 @@
     
 
 .btn-danger {
-    color: black;
+    color: white;
     border-color: orangered;
-    background-color: lightgray;
+    background-color: orangered;
 }
 
 .btn-danger:hover {
     background-color: orangered;
-    color: white;
-    border-color: orangered;
+    color: black;
+    border-color: black;
 }
 
 .btn-danger:focus {
