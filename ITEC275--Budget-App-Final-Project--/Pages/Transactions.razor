@@ -10,7 +10,7 @@
 <Collapse class="col-md-12" @ref="_AddTransactionCollapse" OnHiding="() => UpdateState()">
     <Card>
         <CardBody>
-            <AddTransaction _CurrentBudget="_Budget" CollapseObj="_AddTransactionCollapse" _AccountId="_Account!.AccountId" />
+            <AddTransaction _CurrentBudget=_Budget CollapseObj="_AddTransactionCollapse" _AccountId="_Account!.AccountId" />
         </CardBody>
     </Card>
 </Collapse>

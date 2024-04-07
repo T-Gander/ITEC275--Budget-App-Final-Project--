@@ -76,7 +76,7 @@
 
     private void NavigateToTransactions(int _accountId)
     {
-        NavigationManager.NavigateTo($"./Budgets/{_CurrentBudget.BudgetId}/Accounts/{_accountId}/Transactions");
+        NavigationManager.NavigateTo($"./Budgets/{_CurrentBudget!.BudgetId}/Accounts/{_accountId}/Transactions");
     }
 
     private void DeleteAccount(int _accountId)
